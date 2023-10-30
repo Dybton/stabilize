@@ -3,10 +3,7 @@ import { useState, useEffect } from "react";
 
 import { StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
-import { VictoryBar, Bar, VictoryChart, VictoryTheme, VictoryLine, VictoryLabel, VictoryScatter, VictoryVoronoiContainer} from "victory-native";
-
-
-// On click I wish to print the x, y coordinates of the point clicked
+import { VictoryBar, Bar, VictoryChart, VictoryTheme, VictoryLine, VictoryLabel, VictoryScatter, VictoryVoronoiContainer, VictoryAxis} from "victory-native";
 
 export const Testo = () => {
 
@@ -83,6 +80,10 @@ export const Testo = () => {
     
 <TouchableOpacity onPress={() => console.debug("hey")}>
 <VictoryChart>
+   <VictoryAxis
+    style={{ axis: { stroke: "none" } }}
+    tickFormat={() => null}
+  />
 
 <VictoryLine
         style={{
@@ -107,8 +108,9 @@ export const Testo = () => {
           { x: 2, y: 3 },
           { x: 3, y: 5 },
           { x: 4, y: 4 },
-          { x: 5, y: 7 }
+          { x: 5, y: 7 },
         ]}
+        labels={() => null}
         events={[{
           target: 'data',
           eventHandlers: {

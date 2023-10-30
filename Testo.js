@@ -119,7 +119,10 @@ export const Testo = () => {
                   mutation: (props) => {
                     const { x, y } = props.datum;
                     setDraggedPoint({ x, y });
-                    return null;
+                    const fillColor = props.style && props.style.fill;
+                    return fillColor === "black" 
+                      ? { style: { fill: "red" } } 
+                      : { style: { fill: "black" }, size: 9 };
                   }
                 }
               ];

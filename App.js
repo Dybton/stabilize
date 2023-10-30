@@ -1,10 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import { HelloWorld } from './HelloWorld';
+import {Testo} from './Testo';
 
 export default function App() {
   return (
-      <HelloWorld />
+      <Testo />
   );
 }
 

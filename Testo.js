@@ -78,64 +78,72 @@ export const Testo = () => {
     </VictoryChart>
     <Text>{draggedPoint.x} </Text> */}
     
-<TouchableOpacity onPress={() => console.debug("hey")}>
-<VictoryChart>
-   <VictoryAxis
-    style={{ axis: { stroke: "none" } }}
-    tickFormat={() => null}
-  />
+  <View style={{ marginTop: 50, borderWidth: 1, borderColor: 'black'}}>
+  <TouchableOpacity onPress={() => console.debug("hey")}>
+  <VictoryChart
+   domainPadding={{ x: 25, y: 25 }}>
+     <VictoryAxis
+      style={{ axis: { stroke: "none" } }}
+      tickFormat={() => null}
+    />
 
-<VictoryLine
-        style={{
-          data: { stroke: "#c43a31" },
-          parent: { border: "1px solid #ccc"}
-        }}
-        interpolation="natural"
-        labels={({ datum }) => datum.y}
-        data={[
-          { x: 1, y: 2 },
-          { x: 2, y: 3 },
-          { x: 3, y: 5 },
-          { x: 4, y: 4 },
-          { x: 5, y: 7 }
-        ]}
-      />
-      <VictoryScatter
-        style={{ data: { fill: "#c43a31" } }}
-        size={7}
-        data={[
-          { x: 1, y: 2 },
-          { x: 2, y: 3 },
-          { x: 3, y: 5 },
-          { x: 4, y: 4 },
-          { x: 5, y: 7 },
-        ]}
-        labels={() => null}
-        events={[{
-          target: 'data',
-          eventHandlers: {
-            onPressIn: () => {
-              return [
-                {
-                  target: 'data',
-                  mutation: (props) => {
-                    const { x, y } = props.datum;
-                    setDraggedPoint({ x, y });
-                    const fillColor = props.style && props.style.fill;
-                    return fillColor === "black" 
-                      ? { style: { fill: "red" } } 
-                      : { style: { fill: "black" }, size: 9 };
+  <VictoryLine
+          style={{
+            data: { stroke: "#c43a31" },
+            parent: { border: "1px solid #ccc"}
+          }}
+          interpolation="natural"
+          labels={({ datum }) => datum.y}
+          data={[
+            { x: 1, y: 1 },
+            { x: 2, y: 2 },
+            { x: 2.5, y: 3 },
+            { x: 3, y: 5 },
+            { x: 4, y: 4 },
+            { x: 5, y: 7 },
+            { x: 6, y: 7.5 },
+          ]}
+        />
+        <VictoryScatter
+          style={{ data: { fill: "#c43a31" } }}
+          size={7}
+          data={[
+            { x: 1, y: 1 },
+            { x: 2, y: 2 },
+            { x: 2.5, y: 3 },
+            { x: 3, y: 5 },
+            { x: 4, y: 4 },
+            { x: 5, y: 7 },
+            { x: 6, y: 7.5 },
+
+          ]}
+          labels={() => null}
+          events={[{
+            target: 'data',
+            eventHandlers: {
+              onPressIn: () => {
+                return [
+                  {
+                    target: 'data',
+                    mutation: (props) => {
+                      const { x, y } = props.datum;
+                      setDraggedPoint({ x, y });
+                      const fillColor = props.style && props.style.fill;
+                      return fillColor === "black" 
+                        ? { style: { fill: "red" } } 
+                        : { style: { fill: "black" }, size: 9 };
+                    }
                   }
-                }
-              ];
-            },
-          }
-        }]}
-      />
+                ];
+              },
+            }
+          }]}
+        />
 
-  </VictoryChart>
-  </TouchableOpacity>
-  <Text>{draggedPoint.x}  {draggedPoint.y} </Text>
+    </VictoryChart>
+    </TouchableOpacity>
+    <Text>{draggedPoint.x}  {draggedPoint.y} </Text>
+</View>
   
 
     </>

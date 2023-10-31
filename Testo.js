@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { Dimensions } from 'react-native';
 
 import { StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
@@ -78,10 +79,13 @@ export const Testo = () => {
     </VictoryChart>
     <Text>{draggedPoint.x} </Text> */}
     
-  <View style={{ marginTop: 50, borderWidth: 1, borderColor: 'black'}}>
+    <View style={{ flex: 1, alignItems: 'center', marginTop: 50, borderWidth: 1, borderColor: '#000'}}>
   <TouchableOpacity onPress={() => console.debug("hey")}>
   <VictoryChart
-   domainPadding={{ x: 25, y: 25 }}>
+   domainPadding={{ x: 25, y: 25 }}
+    width={Dimensions.get('window').width * 1.38 } 
+    height={400}
+   >
      <VictoryAxis
       style={{ axis: { stroke: "none" } }}
       tickFormat={() => null}
@@ -101,12 +105,16 @@ export const Testo = () => {
             { x: 3, y: 5 },
             { x: 4, y: 4 },
             { x: 5, y: 7 },
-            { x: 6, y: 7.5 },
+            { x: 6, y: 7.5 }, 
+            { x: 7, y: 8 }, 
+            { x: 8, y: 8.5 }, 
+            { x: 9, y: 9.5 }, 
+
           ]}
         />
         <VictoryScatter
           style={{ data: { fill: "#c43a31" } }}
-          size={7}
+          size={3}
           data={[
             { x: 1, y: 1 },
             { x: 2, y: 2 },
@@ -114,7 +122,10 @@ export const Testo = () => {
             { x: 3, y: 5 },
             { x: 4, y: 4 },
             { x: 5, y: 7 },
-            { x: 6, y: 7.5 },
+            { x: 6, y: 7.5 }, 
+            { x: 7, y: 8 }, 
+            { x: 8, y: 8.5 }, 
+            { x: 9, y: 9.5 }, 
 
           ]}
           labels={() => null}

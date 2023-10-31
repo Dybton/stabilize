@@ -1,10 +1,13 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import { Button, Dimensions } from 'react-native';
+import { useState, useEffect } from "react"
+import { Button, Dimensions } from 'react-native'
+import * as Haptics from 'expo-haptics';
 
-import { StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
-import { VictoryBar, Bar, VictoryChart, VictoryTheme, VictoryLine, VictoryLabel, VictoryScatter, VictoryVoronoiContainer, VictoryAxis} from "victory-native";
+
+import { Text, View, TouchableOpacity} from 'react-native';
+
+import { VictoryChart, VictoryLine, VictoryScatter, VictoryAxis} from "victory-native";
 
 const data1 = [
   { x: 1, y: 1 },
@@ -43,6 +46,7 @@ const data3 = [
   { x: 8, y: 8.5 }, 
   { x: 9, y: 9.5 },
   { x: 10, y: 10 },
+  { x: 11, y: 11 },
 ]
 
 export const Testo = () => {
@@ -50,78 +54,15 @@ export const Testo = () => {
     const [draggedPoint, setDraggedPoint] = useState({ x: 1, y: 2 });
     const [chartData, setChartData] = useState(data1)
 
-
-    const handleDrag = (event, data) => {
-      const { x } = data;
-      // Update y based on your curve function
-      const y = curveFunction(x);
-      setDraggedPoint({ x, y });
-    };
-
-    console.debug("text");
-
-    useEffect(() => {
-      console.debug(draggedPoint);
-    },[draggedPoint])
+    const changeData = (data) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+      setChartData(data)
+    }
 
   return (
     <>
-    {/* <VictoryChart
-      theme={VictoryTheme.material}
-    >
-      <VictoryLine
-        style={{
-          data: { stroke: "#c43a31" },
-          parent: { border: "1px solid #ccc"}
-        }}
-        interpolation="natural"
-        labels={({ datum }) => datum.y}
-        data={[
-          { x: 1, y: 2 },
-          { x: 2, y: 3 },
-          { x: 3, y: 5 },
-          { x: 4, y: 4 },
-          { x: 5, y: 7 }
-        ]}
-      />
-      <VictoryScatter
-        style={{ data: { fill: "#c43a31" } }}
-        size={7}
-        data={[
-          { x: 1, y: 2 },
-          { x: 2, y: 3 },
-          { x: 3, y: 5 },
-          { x: 4, y: 4 },
-          { x: 5, y: 7 }
-        ]}
-        events={[{
-          target: 'data',
-          eventHandlers: {
-            onClick: () => {
-              console.log('onMouseDown');
-              return [
-                {
-                  target: 'data',
-                  mutation: (props) => {
-                    console.debug(props);
-                    console.debug("hey ");
-                    const { x, y } = props.datum;
-                    setDraggedPoint({ x, y });
-                    return null;
-                  }
-                }
-              ];
-            },
-          }
-        }]}
-      />
-
-
-    </VictoryChart>
-    <Text>{draggedPoint.x} </Text> */}
-    
     <View style={{ flex: 1, alignItems: 'center', marginTop: 50, borderWidth: 1, borderColor: '#000'}}>
-  <TouchableOpacity onPress={() => console.debug("hey")}>
+  <TouchableOpacity>
   <VictoryChart
    domainPadding={{ x: 25, y: 25 }}
     width={Dimensions.get('window').width * 1.38 } 
@@ -144,7 +85,7 @@ export const Testo = () => {
         />
         <VictoryScatter
           style={{ data: { fill: "#c43a31" } }}
-          size={3}
+          size={8}
           data={chartData}  
           labels={() => null}
           events={[{
@@ -155,6 +96,7 @@ export const Testo = () => {
                   {
                     target: 'data',
                     mutation: (props) => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
                       const { x, y } = props.datum;
                       setDraggedPoint({ x, y });
                       const fillColor = props.style && props.style.fill;
@@ -173,9 +115,11 @@ export const Testo = () => {
     </TouchableOpacity>
     <Text>{draggedPoint.x}  {draggedPoint.y} </Text>
     <View style={{flexDirection: 'row'}}>
-    <Button onPress={() => setChartData(data1)} title={"Hey"}></Button>
-    <Button onPress={() => setChartData(data2)} title={"Hey"}></Button>
-    <Button onPress={() => setChartData(data3)} title={"Hey"}></Button>
+    <Button onPress={() => changeData(data1)} title={"12H"}></Button>
+    <Button onPress={() => changeData(data2)} title={"24H"}></Button>
+    <Button onPress={() => changeData(data3)} title={"3D"}></Button>
+    <Button onPress={() => changeData(data3)} title={"7D"}></Button>
+    <Button onPress={() => changeData(data3)} title={"14D"}></Button>
     </View>
 </View>
   

@@ -19,7 +19,17 @@ const data1 = [
   { x: 6, y: 7.5 }, 
   { x: 7, y: 8 }, 
   { x: 8, y: 8.5 }, 
-  { x: 9, y: 10 },
+  { x: 9, y: 6},
+  { x: 10, y: 6.5 },
+  { x: 11, y: 7 },
+  { x: 12, y: 7.5 },
+  { x: 13, y: 8 },
+  { x: 14, y: 8.5 },
+  { x: 15, y: 9 },
+  { x: 16, y: 9.5 },
+  { x: 17, y: 10 },
+  { x: 18, y: 10.5 },
+  { x: 19, y: 11 },
 ]
 
 const data2 = [
@@ -33,20 +43,39 @@ const data2 = [
   { x: 7, y: 8 }, 
   { x: 8, y: 8.5 }, 
   { x: 9, y: 9.5 },
+  { x: 10, y: 10 },
+  { x: 11, y: 10.5 },
+  { x: 12, y: 11 },
+  { x: 13, y: 11.5 },
+  { x: 14, y: 12 },
+  { x: 15, y: 12.5 },
+  { x: 16, y: 13 },
+  { x: 17, y: 13.5 },
+  { x: 18, y: 14 },
+  { x: 19, y: 14.5 },
 ]
 
 const data3 = [
   { x: 1, y: 1 },
-  { x: 3, y: 2.5 },
-  { x: 3.5, y: 3 },
+  { x: 2, y: 2.5 },
+  { x: 2.5, y: 3 },
+  { x: 3, y: 3 },
   { x: 4, y: 5 },
   { x: 5, y: 4 },
-  { x: 6, y: 7.5 }, 
+  { x: 6, y: 2 }, 
   { x: 7, y: 8 }, 
-  { x: 8, y: 8.5 }, 
+  { x: 8, y: 2 }, 
   { x: 9, y: 9.5 },
-  { x: 10, y: 10 },
-  { x: 11, y: 11 },
+  { x: 10, y: 12 },
+  { x: 11, y: 12.5 },
+  { x: 12, y: 4 },
+  { x: 13, y: 13.5 },
+  { x: 14, y: 14 },
+  { x: 15, y: 14.5 },
+  { x: 16, y: 3 },
+  { x: 17, y: 15.5 },
+  { x: 18, y: 8 },
+  { x: 19, y: 16.5 },
 ]
 
 export const Testo = () => {
@@ -67,7 +96,7 @@ export const Testo = () => {
    domainPadding={{ x: 25, y: 25 }}
     width={Dimensions.get('window').width * 1.38 } 
     height={400}
-    animate={{ duration: 250 }}
+    animate={{ duration: 150, easing: "ease-out" } }
    >
      <VictoryAxis
       style={{ axis: { stroke: "none" } }}
@@ -85,7 +114,7 @@ export const Testo = () => {
         />
         <VictoryScatter
           style={{ data: { fill: "#c43a31" } }}
-          size={8}
+          size={0}
           data={chartData}  
           labels={() => null}
           events={[{
@@ -118,8 +147,6 @@ export const Testo = () => {
     <Button onPress={() => changeData(data1)} title={"12H"}></Button>
     <Button onPress={() => changeData(data2)} title={"24H"}></Button>
     <Button onPress={() => changeData(data3)} title={"3D"}></Button>
-    <Button onPress={() => changeData(data3)} title={"7D"}></Button>
-    <Button onPress={() => changeData(data3)} title={"14D"}></Button>
     </View>
 </View>
   

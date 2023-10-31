@@ -96,7 +96,7 @@ export const Testo = () => {
    domainPadding={{ x: 25, y: 25 }}
     width={Dimensions.get('window').width * 1.38 } 
     height={400}
-    animate={{ duration: 150, easing: "ease-out" } }
+    animate={{ duration: 200, easing: 'linear' } }
    >
      <VictoryAxis
       style={{ axis: { stroke: "none" } }}

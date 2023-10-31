@@ -1,14 +1,55 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { Dimensions } from 'react-native';
+import { Button, Dimensions } from 'react-native';
 
 import { StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
 import { VictoryBar, Bar, VictoryChart, VictoryTheme, VictoryLine, VictoryLabel, VictoryScatter, VictoryVoronoiContainer, VictoryAxis} from "victory-native";
 
+const data1 = [
+  { x: 1, y: 1 },
+  { x: 2, y: 2 },
+  { x: 2.5, y: 3 },
+  { x: 3, y: 5 },
+  { x: 4, y: 4 },
+  { x: 5, y: 7 },
+  { x: 6, y: 7.5 }, 
+  { x: 7, y: 8 }, 
+  { x: 8, y: 8.5 }, 
+  { x: 9, y: 10 },
+]
+
+const data2 = [
+  { x: 1, y: 1 },
+  { x: 2, y: 2 },
+  { x: 2.5, y: 3 },
+  { x: 3, y: 5 },
+  { x: 4, y: 4 },
+  { x: 5, y: 7 },
+  { x: 6, y: 7.5 }, 
+  { x: 7, y: 8 }, 
+  { x: 8, y: 8.5 }, 
+  { x: 9, y: 9.5 },
+]
+
+const data3 = [
+  { x: 1, y: 1 },
+  { x: 3, y: 2.5 },
+  { x: 3.5, y: 3 },
+  { x: 4, y: 5 },
+  { x: 5, y: 4 },
+  { x: 6, y: 7.5 }, 
+  { x: 7, y: 8 }, 
+  { x: 8, y: 8.5 }, 
+  { x: 9, y: 9.5 },
+  { x: 10, y: 10 },
+]
+
 export const Testo = () => {
 
     const [draggedPoint, setDraggedPoint] = useState({ x: 1, y: 2 });
+    const [chartData, setChartData] = useState(data1)
+
 
     const handleDrag = (event, data) => {
       const { x } = data;
@@ -85,6 +126,7 @@ export const Testo = () => {
    domainPadding={{ x: 25, y: 25 }}
     width={Dimensions.get('window').width * 1.38 } 
     height={400}
+    animate={{ duration: 250 }}
    >
      <VictoryAxis
       style={{ axis: { stroke: "none" } }}
@@ -97,37 +139,13 @@ export const Testo = () => {
             parent: { border: "1px solid #ccc"}
           }}
           interpolation="natural"
-          labels={({ datum }) => datum.y}
-          data={[
-            { x: 1, y: 1 },
-            { x: 2, y: 2 },
-            { x: 2.5, y: 3 },
-            { x: 3, y: 5 },
-            { x: 4, y: 4 },
-            { x: 5, y: 7 },
-            { x: 6, y: 7.5 }, 
-            { x: 7, y: 8 }, 
-            { x: 8, y: 8.5 }, 
-            { x: 9, y: 9.5 }, 
-
-          ]}
+          // labels={({ datum }) => datum.y}
+          data={chartData}
         />
         <VictoryScatter
           style={{ data: { fill: "#c43a31" } }}
           size={3}
-          data={[
-            { x: 1, y: 1 },
-            { x: 2, y: 2 },
-            { x: 2.5, y: 3 },
-            { x: 3, y: 5 },
-            { x: 4, y: 4 },
-            { x: 5, y: 7 },
-            { x: 6, y: 7.5 }, 
-            { x: 7, y: 8 }, 
-            { x: 8, y: 8.5 }, 
-            { x: 9, y: 9.5 }, 
-
-          ]}
+          data={chartData}  
           labels={() => null}
           events={[{
             target: 'data',
@@ -154,6 +172,11 @@ export const Testo = () => {
     </VictoryChart>
     </TouchableOpacity>
     <Text>{draggedPoint.x}  {draggedPoint.y} </Text>
+    <View style={{flexDirection: 'row'}}>
+    <Button onPress={() => setChartData(data1)} title={"Hey"}></Button>
+    <Button onPress={() => setChartData(data2)} title={"Hey"}></Button>
+    <Button onPress={() => setChartData(data3)} title={"Hey"}></Button>
+    </View>
 </View>
   
 

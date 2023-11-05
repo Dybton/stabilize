@@ -9,6 +9,11 @@ import { Dimensions } from 'react-native'
 import CustomButton from "./components/CustomButton";
 
 
+// Buttons
+// Events
+// Ticks
+
+
 const data1 = [
     { x: 0, y: 1 },
     { x: 1, y: 2 },
@@ -96,9 +101,9 @@ export const Test3 = () => {
     const [cursorValue, setCursorValue] = useState(null);
     const [pressed, setPressed] = useState(false);
     const [averageGL, setAverageGL] = useState(0)
-    const [timeFrame, setTimeFrame] = useState("12H")
+    const [timeframe, setTimeframe] = useState("12H") // make this into an enum
     
-    const timeFrames = ["12H", "24H", "3D", "7D", "14D"]
+
 
     useEffect(() => {
         const val =  chartData[chartData.length - 1].x
@@ -166,10 +171,10 @@ export const Test3 = () => {
           
         }
       >
-        <VictoryAxis
-            // tickValues={[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]}
-            // tickFormat={(t) => `${t}`}
-        />
+       <VictoryAxis
+                // style={{ axis: { stroke: "none" } }}
+                tickFormat={() => null}
+            />
         <VictoryLine
             data={chartData}
             y={(datum) => datum.y}
@@ -186,12 +191,16 @@ export const Test3 = () => {
       </View>
 
       <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-        
-        <Button onPress={() => changeData(data1)} title={"12H"} color="black"></Button>
-        <Button onPress={() => changeData(data2)} title={"24H"} color="black"></Button>
+
+        <CustomButton data={data1} handleClick={changeData} text={"12H"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={data2} handleClick={changeData} text={"24H"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={data3} handleClick={changeData} text={"3D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={data1} handleClick={changeData} text={"7D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={data1} handleClick={changeData} text={"14D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        {/* <Button onPress={() => changeData(data2)} title={"24H"} color="black"></Button>
         <Button onPress={() => changeData(data3)} title={"3D"} color="black"></Button>
         <Button onPress={() => changeData(data3)} title={"7D"} color="black"></Button>
-        <Button onPress={() => changeData(data3)} title={"14D"} color="black"></Button>
+        <Button onPress={() => changeData(data3)} title={"14D"} color="black"></Button> */}
     </View>
       </View>
     );

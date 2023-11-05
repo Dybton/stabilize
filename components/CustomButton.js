@@ -1,26 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TouchableOpacity, Text } from 'react-native';
-import { useState } from 'react';
 
-const CustomButton = ({data, handleClick, text}) => {
-    const [pressed, setPressed] = useState(false);
-
-
+const CustomButton = ({data, handleClick, text, timeframe, setTimeframe}) => {
     return (
-    <TouchableOpacity 
-      onPress={() => handleClick(data)} 
-      style={{
-        borderRadius: 50,
-        backgroundColor: 'grey',
-        padding: 14,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Text style={{color: 'black'}}>{text}</Text>
-    </TouchableOpacity>
-    )
-  };
+        <TouchableOpacity 
+            onPress={() => {
+                handleClick(data);
+                setTimeframe(text);
+            }} 
 
+            style={{
+                borderRadius: 50,
+                backgroundColor: (timeframe === text) ? 'rgba(238, 238, 238, 1)' : 'white',
+                padding: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+        >
+            <Text style={{color: 'black'}}>{text}</Text>
+        </TouchableOpacity>
+    )
+};
 
 export default CustomButton;

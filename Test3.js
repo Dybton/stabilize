@@ -1,18 +1,18 @@
 
-import React, { useEffect } from "react";
-import { VictoryLine, VictoryChart, VictoryCursorContainer, VictoryScatter, VictoryAxis } from 'victory-native';
+import React, { useEffect, useState } from "react";
+import { VictoryLine, VictoryChart, VictoryCursorContainer, VictoryScatter, VictoryAxis, VictoryGroup} from 'victory-native';
 import { View, Text} from 'react-native'
-import { useState  } from "react"
-import { Button } from 'react-native'
 import * as Haptics from 'expo-haptics';
 import { Dimensions } from 'react-native'
 import CustomButton from "./components/CustomButton";
+import FoodIcon from "./components/Icons/FoodIcon";
 
+// Buttons - Done
+// Events - Show icons
+// Ticks - Show time some way
+// Haptic feedback on change 
 
-// Buttons
-// Events
-// Ticks
-
+const events1 = [{ x: 2, y: 3 }, { x: 5, y: 7 }, { x: 11, y: 6.5 },]
 
 const data1 = [
     { x: 0, y: 1 },
@@ -102,7 +102,16 @@ export const Test3 = () => {
     const [pressed, setPressed] = useState(false);
     const [averageGL, setAverageGL] = useState(0)
     const [timeframe, setTimeframe] = useState("12H") // make this into an enum
+    const [selectedEvent, setSelectedEvent] = useState(null)
+
+    useEffect(() => {
+        console.debug('selectedEvent', selectedEvent);
+    }, [selectedEvent]);
     
+    // useEffect(() => {
+    //     const index = events1.findIndex(event => cursorValue && cursorValue.x >= event.x - 0.5 && cursorValue.x <= event.x + 0.5);
+    //     setSelectedEvent(index !== -1 ? index : null);
+    // }, [cursorValue, events1]);
 
 
     useEffect(() => {
@@ -143,21 +152,23 @@ export const Test3 = () => {
         <View style={{ flex: 1 }}>
             <Text style={{ textAlign: 'center' }}>Glucose level:  </Text>
             <Text style={{ textAlign: 'center' }}><Text style={{fontSize: 20}}>{cursorValue && cursorValue.y.toFixed(1)} </Text> mmol/L</Text>
+            {/* <Text style={{ textAlign: 'center' }}>{cursorValue && cursorValue.x.toFixed(1)}  </Text> */}
         </View>
+        
     </View>
     <View style={{ marginTop: 30}}>
       <VictoryChart
-      domainPadding={{ y: [30, 30]}} 
+      domainPadding={{ y: [Dimensions.get('window').height * 0.5, Dimensions.get('window').height * 0.1]}} 
       width={Dimensions.get('window').width} 
       padding={{ top: 0, bottom: 30, left: 0, right:0 }}
         height={Dimensions.get('window').height * 0.5} // 50% of the screen height
-        {...(pressed ? {} : { animate: { duration: 400 } })}
+        {...(pressed ? {} : { animate: { duration: 200 } })}
         
         containerComponent={
           <VictoryCursorContainer
             onCursorChange={(value) => {
                 if (value) {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                 setCursorValue(value)
                 }
             }}
@@ -183,10 +194,43 @@ export const Test3 = () => {
         {cursorValue && pressed && (
           <VictoryScatter
           data={[findClosestPoint(chartData, cursorValue)]}
-          size={7}
+          size={5}
           style={{ data: { fill: "red" } }}
         />
+        
         )}
+         {events1.map((event, index) => {
+            const highlightEvent = (cursorValue && cursorValue.x >= event.x - 0.5 && cursorValue.x <= event.x + 0.5)
+            
+            // if (highlightEvent) {
+            //     setSelectedEvent(index);
+            // }
+
+            return ( 
+            <VictoryGroup animate={false} key={index}>
+              
+                <VictoryScatter
+                    data={[event]}
+                    size={highlightEvent ? 12 : 8} // Use the state variable here
+                    // style={{ data: { fill: "blue" } }}
+                    dataComponent={<FoodIcon/>}
+                    
+                    // events={[{
+                    //     target: "data",
+                    //     // eventHandlers: {
+                    //     //     onPressIn: () => {
+                    //     //         if (index === selectedEvent) {
+                    //     //             setSelectedEvent(null);
+                    //     //         } else {
+                    //     //             setSelectedEvent(index);
+                    //     //         }
+                    //     //         return [];
+                    //     //     },
+                    //     // }
+                    // }]}
+                />
+            </VictoryGroup>
+        )})}
       </VictoryChart>
       </View>
 
@@ -197,11 +241,10 @@ export const Test3 = () => {
         <CustomButton data={data3} handleClick={changeData} text={"3D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
         <CustomButton data={data1} handleClick={changeData} text={"7D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
         <CustomButton data={data1} handleClick={changeData} text={"14D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
-        {/* <Button onPress={() => changeData(data2)} title={"24H"} color="black"></Button>
-        <Button onPress={() => changeData(data3)} title={"3D"} color="black"></Button>
-        <Button onPress={() => changeData(data3)} title={"7D"} color="black"></Button>
-        <Button onPress={() => changeData(data3)} title={"14D"} color="black"></Button> */}
     </View>
+            {selectedEvent !== null && (
+                <Text>{`Event ${selectedEvent }`}</Text>
+            )}
       </View>
     );
   }

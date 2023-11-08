@@ -111,9 +111,9 @@ export const Test3 = () => {
     },[cursorValue])
 
     useEffect(() => {
-        if(chartData){
-            setAverageGL(calculateAverageGL(chartData))
-        }
+      if(chartData){
+        setAverageGL(calculateAverageGL(chartData))
+    }
     },[chartData])
 
     const calculateAverageGL = (data) => {
@@ -201,9 +201,9 @@ export const Test3 = () => {
             return ( 
             <VictoryGroup animate={false} key={index}>
                 <VictoryScatter
-                    data={[event]}
+                  data={[event]}
                   dataComponent={<FoodIcon highlightEvent={highlightEvent}/>}
-                />
+              />
             </VictoryGroup>
         )})}
       </VictoryChart>

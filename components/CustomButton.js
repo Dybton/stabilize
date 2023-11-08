@@ -11,6 +11,7 @@ const CustomButton = ({data, handleClick, text, timeframe, setTimeframe}) => {
 
             style={{
                 borderRadius: 50,
+                width: 60,
                 backgroundColor: (timeframe === text) ? 'rgba(238, 238, 238, 1)' : 'white',
                 padding: 14,
                 alignItems: 'center',

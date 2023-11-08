@@ -105,25 +105,16 @@ export const Test3 = () => {
     const [selectedEvent, setSelectedEvent] = useState(null)
 
     useEffect(() => {
-        console.debug('selectedEvent', selectedEvent);
-    }, [selectedEvent]);
-    
-    // useEffect(() => {
-    //     const index = events1.findIndex(event => cursorValue && cursorValue.x >= event.x - 0.5 && cursorValue.x <= event.x + 0.5);
-    //     setSelectedEvent(index !== -1 ? index : null);
-    // }, [cursorValue, events1]);
-
-
-    useEffect(() => {
         const val =  chartData[chartData.length - 1].x
         if(!cursorValue)
             setCursorValue({x: val, y: chartData[chartData.length - 1].y})
+    },[cursorValue])
 
+    useEffect(() => {
         if(chartData){
             setAverageGL(calculateAverageGL(chartData))
         }
-
-    },[])
+    },[chartData])
 
     const calculateAverageGL = (data) => {
         if(!chartData)
@@ -152,7 +143,6 @@ export const Test3 = () => {
         <View style={{ flex: 1 }}>
             <Text style={{ textAlign: 'center' }}>Glucose level:  </Text>
             <Text style={{ textAlign: 'center' }}><Text style={{fontSize: 20}}>{cursorValue && cursorValue.y.toFixed(1)} </Text> mmol/L</Text>
-            {/* <Text style={{ textAlign: 'center' }}>{cursorValue && cursorValue.x.toFixed(1)}  </Text> */}
         </View>
         
     </View>
@@ -161,7 +151,7 @@ export const Test3 = () => {
       domainPadding={{ y: [Dimensions.get('window').height * 0.5, Dimensions.get('window').height * 0.1]}} 
       width={Dimensions.get('window').width} 
       padding={{ top: 0, bottom: 30, left: 0, right:0 }}
-        height={Dimensions.get('window').height * 0.5} // 50% of the screen height
+        height={Dimensions.get('window').height * 0.5} 
         {...(pressed ? {} : { animate: { duration: 200 } })}
         
         containerComponent={
@@ -202,32 +192,17 @@ export const Test3 = () => {
          {events1.map((event, index) => {
             const highlightEvent = (cursorValue && cursorValue.x >= event.x - 0.5 && cursorValue.x <= event.x + 0.5)
             
-            // if (highlightEvent) {
-            //     setSelectedEvent(index);
-            // }
+            useEffect(() => {
+              if(highlightEvent)
+                setSelectedEvent(index);
+                // Haptic feedback
+          }, [highlightEvent]);
 
             return ( 
             <VictoryGroup animate={false} key={index}>
-              
                 <VictoryScatter
                     data={[event]}
-                    size={highlightEvent ? 12 : 8} // Use the state variable here
-                    // style={{ data: { fill: "blue" } }}
-                    dataComponent={<FoodIcon/>}
-                    
-                    // events={[{
-                    //     target: "data",
-                    //     // eventHandlers: {
-                    //     //     onPressIn: () => {
-                    //     //         if (index === selectedEvent) {
-                    //     //             setSelectedEvent(null);
-                    //     //         } else {
-                    //     //             setSelectedEvent(index);
-                    //     //         }
-                    //     //         return [];
-                    //     //     },
-                    //     // }
-                    // }]}
+                  dataComponent={<FoodIcon highlightEvent={highlightEvent}/>}
                 />
             </VictoryGroup>
         )})}

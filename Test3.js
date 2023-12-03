@@ -1,85 +1,15 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { VictoryLine, VictoryChart, VictoryCursorContainer, VictoryScatter, VictoryAxis, VictoryGroup} from 'victory-native';
-import { View, Text} from 'react-native'
+import { View, Text, Button, TouchableOpacity} from 'react-native'
 import * as Haptics from 'expo-haptics';
 import { Dimensions } from 'react-native'
 import CustomButton from "./components/CustomButton";
 import FoodIcon from "./components/Icons/FoodIcon";
-
-// Buttons - Done
-// Events - Show icons
-// Ticks - Show time some way
-// Haptic feedback on change 
-
-const events1 = [{ x: 2, y: 3 }, { x: 5, y: 7 }, { x: 11, y: 6.5 },]
-
-const data1 = [
-    { x: 0, y: 1 },
-    { x: 1, y: 2 },
-    { x: 2, y: 3 },
-    { x: 3, y: 5 },
-    { x: 4, y: 4 },
-    { x: 5, y: 7 },
-    { x: 6, y: 7.5 }, 
-    { x: 7, y: 8 }, 
-    { x: 8, y: 8.5 }, 
-    { x: 9, y: 8.5 }, 
-    { x: 10, y: 6},
-    { x: 11, y: 6.5 },
-    { x: 12, y: 7 },
-  ]
-
-  const data2 = [
-    { x: 0, y: 1 },
-    { x: 1, y: 2 },
-    { x: 2, y: 3 },
-    { x: 3, y: 5 },
-    { x: 4, y: 4 },
-    { x: 5, y: 7 },
-    { x: 6, y: 7.5 }, 
-    { x: 7, y: 8 }, 
-    { x: 8, y: 8.5 }, 
-    { x: 9, y: 8.5 }, 
-    { x: 10, y: 6},
-    { x: 11, y: 6.5 },
-    { x: 12, y: 7 },
-    { x: 13, y: 7.5 },
-    { x: 14, y: 8 },
-    { x: 15, y: 8.5 },
-    { x: 16, y: 9 },
-    { x: 17, y: 9.5 },
-    { x: 18, y: 10 },
-    { x: 19, y: 10.5 },
-    { x: 20, y: 11 },
-    { x: 21, y: 1 },
-    { x: 22, y: 2 },
-    { x: 23, y: 3 },
-    { x: 24, y: 5 },
-  ]
-
-  const data3 = [
-    { x: 1, y: 1 },
-    { x: 2, y: 2.5 },
-    { x: 2.5, y: 3 },
-    { x: 3, y: 3 },
-    { x: 4, y: 5 },
-    { x: 5, y: 4 },
-    { x: 6, y: 2 }, 
-    { x: 7, y: 8 }, 
-    { x: 8, y: 2 }, 
-    { x: 9, y: 9.5 },
-    { x: 10, y: 12 },
-    { x: 11, y: 12.5 },
-    { x: 12, y: 4 },
-    { x: 13, y: 13.5 },
-    { x: 14, y: 14 },
-    { x: 15, y: 14.5 },
-    { x: 16, y: 3 },
-    { x: 17, y: 15.5 },
-    { x: 18, y: 8 },
-    { x: 19, y: 16.5 },
-  ]
+import { StyleSheet } from "react-native";
+import glucoseData from "./DummyData";
+import dummyGlucoseData from "./DummyData2";
+import { getGlucoseDataForPeriod } from "./utils/getGlucoseDataForPeriod";
 
   const findClosestPoint = (data, value) => {
     let closestPoint = data[0];
@@ -97,7 +27,20 @@ const data1 = [
   }
 
 export const Test3 = () => {
-    const [chartData, setChartData] = useState(data2);
+
+    // We need to record a bunch of events 
+
+    // This should be done in the backend
+    const hours12data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
+    const hours24data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);
+    const days3data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 2 === 0), [glucoseData]);
+    const days7data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 5 === 0), [glucoseData]);
+    const days14data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 14 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 9 === 0), [glucoseData]);
+
+
+    console.debug(days14data.length)
+
+    const [chartData, setChartData] = useState(hours12data);
     const [cursorValue, setCursorValue] = useState(null);
     const [pressed, setPressed] = useState(false);
     const [averageGL, setAverageGL] = useState(0)
@@ -110,11 +53,11 @@ export const Test3 = () => {
             setCursorValue({x: val, y: chartData[chartData.length - 1].y})
     },[cursorValue])
 
-    useEffect(() => {
-      if(chartData){
-        setAverageGL(calculateAverageGL(chartData))
-    }
-    },[chartData])
+    // useEffect(() => {
+    //   if(chartData){
+    //     setAverageGL(calculateAverageGL(chartData))
+    // }
+    // },[chartData])
 
     const calculateAverageGL = (data) => {
         if(!chartData)
@@ -132,17 +75,24 @@ export const Test3 = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
         setChartData(data)
       }
-    
+
     return (
     <View style={{ flex: 1, marginTop: 50, width: Dimensions.get('window').width }}>
     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={{ flex: 1 }}>
-            <Text style={{ textAlign: 'center' }}>12 Hour Average</Text>
-            <Text style={{ textAlign: 'center' }}><Text style={{fontSize: 20}}>{averageGL.toFixed(1)}</Text> mmol/L</Text>
+            {/* <Text style={{ textAlign: 'center' }}>12 Hour Average</Text>
+            <Text style={{ textAlign: 'center' }}><Text style={{fontSize: 20}}>{averageGL.toFixed(1)}</Text> mmol/L</Text> */}
+            <Text style={{ textAlign: 'center' }}>Time:</Text>
+            <Text style={{ textAlign: 'center' }}>
+              {chartData === hours12data || chartData === hours24data ? <Text style={{fontSize: 20}}>{cursorValue && new Date(cursorValue.x).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' })}</Text> 
+            :   <Text style={{fontSize: 20, position: 'absolute'}}>{cursorValue && new Date(cursorValue.x).toLocaleDateString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit', month:"short", day:"numeric" })}</Text>
+            }
+            </Text>
         </View>
         <View style={{ flex: 1 }}>
             <Text style={{ textAlign: 'center' }}>Glucose level:  </Text>
             <Text style={{ textAlign: 'center' }}><Text style={{fontSize: 20}}>{cursorValue && cursorValue.y.toFixed(1)} </Text> mmol/L</Text>
+            
         </View>
         
     </View>
@@ -189,7 +139,7 @@ export const Test3 = () => {
         />
         
         )}
-         {events1.map((event, index) => {
+         {/* {events1.map((event, index) => {
             const highlightEvent = (cursorValue && cursorValue.x >= event.x - 0.5 && cursorValue.x <= event.x + 0.5)
             
             useEffect(() => {
@@ -205,24 +155,65 @@ export const Test3 = () => {
                   dataComponent={<FoodIcon highlightEvent={highlightEvent}/>}
               />
             </VictoryGroup>
-        )})}
+        )})} */}
       </VictoryChart>
+      
       </View>
 
       <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
 
-        <CustomButton data={data1} handleClick={changeData} text={"12H"} timeframe={timeframe} setTimeframe={setTimeframe}/>
-        <CustomButton data={data2} handleClick={changeData} text={"24H"} timeframe={timeframe} setTimeframe={setTimeframe}/>
-        <CustomButton data={data3} handleClick={changeData} text={"3D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
-        <CustomButton data={data1} handleClick={changeData} text={"7D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
-        <CustomButton data={data1} handleClick={changeData} text={"14D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={hours12data} handleClick={changeData} text={"12H"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={hours24data} handleClick={changeData} text={"24H"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={days3data} handleClick={changeData} text={"3D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={days7data} handleClick={changeData} text={"7D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
+        <CustomButton data={days14data} handleClick={changeData} text={"14D"} timeframe={timeframe} setTimeframe={setTimeframe}/>
     </View>
+
+
+    
+    <View style={styles.container}>
+            {/* ... (rest of your views) */}
+
             {selectedEvent !== null && (
-                <Text>{`Event ${selectedEvent }`}</Text>
+                <TouchableOpacity
+                    style={styles.eventButton}
+                    onPress={() => console.log(`Go Event ${selectedEvent} pressed`)}
+                    activeOpacity={0.7}
+                >
+                    <Text style={styles.eventButtonText}>{`Go to Event ${selectedEvent}`}</Text>
+                </TouchableOpacity>
             )}
+        </View>
       </View>
     );
   }
+
+  const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: 50,
+        width: Dimensions.get('window').width,
+    },
+    eventButton: {
+        marginTop: 20,
+        backgroundColor: '#007bff', // Bootstrap primary button color
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 3,
+        alignSelf: 'center', // Center button horizontally
+    },
+    eventButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    // ... (other styles)
+});
 
   
 

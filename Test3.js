@@ -30,28 +30,31 @@ export const Test3 = () => {
 
     // We need to record a bunch of events 
 
+    const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
+
     // This should be done in the backend
-    const hours12data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
-    const hours24data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);
-    const days3data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 2 === 0), [glucoseData]);
-    const days7data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 5 === 0), [glucoseData]);
-    const days14data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(new Date().getTime() - 14 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 9 === 0), [glucoseData]);
+    const hours12data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
+    const hours24data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);
+    const days3data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 3 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 2 === 0), [glucoseData]);
+    const days7data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 5 === 0), [glucoseData]);
+    const days14data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 9 === 0), [glucoseData]);
 
-
-    console.debug(days14data.length)
+    console.debug(hours12data)
 
     const [chartData, setChartData] = useState(hours12data);
-    const [cursorValue, setCursorValue] = useState(null);
+    const [cursorValue, setCursorValue] = useState();
     const [pressed, setPressed] = useState(false);
     const [averageGL, setAverageGL] = useState(0)
     const [timeframe, setTimeframe] = useState("12H") // make this into an enum
     const [selectedEvent, setSelectedEvent] = useState(null)
 
     useEffect(() => {
-        const val =  chartData[chartData.length - 1].x
-        if(!cursorValue)
+      if (chartData.length > 0) {
+          const val =  chartData[chartData.length - 1].x
+          if(!cursorValue)
             setCursorValue({x: val, y: chartData[chartData.length - 1].y})
-    },[cursorValue])
+      }
+  },[cursorValue, chartData])
 
     // useEffect(() => {
     //   if(chartData){

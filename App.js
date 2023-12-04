@@ -10,7 +10,7 @@ import {AddIcon} from './components/Icons/AddIcon';
 import {BookIcon} from './components/Icons/BookIcon';
 
 
-const Stack  = createStackNavigator();
+const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {

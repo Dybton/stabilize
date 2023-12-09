@@ -4,13 +4,13 @@ import { VictoryLine, VictoryChart, VictoryCursorContainer, VictoryScatter, Vict
 import { View, Text, Button, TouchableOpacity} from 'react-native'
 import * as Haptics from 'expo-haptics';
 import { Dimensions } from 'react-native'
-import CustomButton from "./components/CustomButton";
-import FoodIcon from "./components/Icons/FoodIcon";
+import CustomButton from "../components/CustomButton";
+import FoodIcon from "../components/Icons/FoodIcon";
 import { StyleSheet } from "react-native";
-import glucoseData from "./DummyData";
-import dummyGlucoseData from "./DummyData2";
-import { getGlucoseDataForPeriod } from "./utils/getGlucoseDataForPeriod";
-import { GlucoseData, GlucoseEvent } from "./Types";
+import glucoseData from "../../DummyData";
+import dummyGlucoseData from "../../DummyData2";
+import { getGlucoseDataForPeriod } from "../utils/getGlucoseDataForPeriod";
+import { GlucoseData, GlucoseEvent } from "../../Types";
 
 
 
@@ -29,10 +29,10 @@ import { GlucoseData, GlucoseEvent } from "./Types";
     return closestPoint;
   }
 
-export const Test3 = () => {
+export const GlucoseLevelChart = () => {
 
     const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
-    
+
     // This should be done in the backend
     const hours12data : GlucoseData = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
     const hours24data : GlucoseData = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);

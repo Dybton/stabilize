@@ -1,5 +1,6 @@
 {
   "expo": {
+    "entryPoint": "./index.ts",
     "name": "stabilize-app",
     "slug": "stabilize-app",
     "version": "1.0.0",

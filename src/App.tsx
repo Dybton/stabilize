@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import {Testo} from './Testo';
-import { Test3 } from './Test3';
+import {Testo} from './components/Testo';
+import { GlucoseLevelChart } from './screens/GlucoseLevelChart';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
@@ -34,7 +34,7 @@ const TabNavigator = ({ handlePresentModalPress }) => {
     >
   <Tab.Screen 
     name="Graph" 
-    component={Test3} 
+    component={GlucoseLevelChart} 
     options={{ 
       tabBarIcon: ({ focused }) => (
         <GraphIcon color={focused ? 'blue' : 'grey'} />

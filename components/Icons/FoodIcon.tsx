@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity} from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 // Make this generic such that it takes a type and an icon
-const FoodIcon = ({x, y, highlightEvent, index}) => {
+const FoodIcon = ({x, y, highlightEvent}) => {
   const [iconSize, setIconSize] = useState(20);
   
   

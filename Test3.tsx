@@ -10,14 +10,11 @@ import { StyleSheet } from "react-native";
 import glucoseData from "./DummyData";
 import dummyGlucoseData from "./DummyData2";
 import { getGlucoseDataForPeriod } from "./utils/getGlucoseDataForPeriod";
-
-  type GlucoseEvent = {
-    x: number;
-    y: number;
-  }
+import { GlucoseData, GlucoseEvent } from "./Types";
 
 
-  const findClosestPoint = (data :GlucoseEvent[], value: GlucoseEvent) => {
+
+  const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
     if(!data) return
     let closestPoint = data[0];
     let closestDistance = Math.abs(data[0].x - value.x);
@@ -35,12 +32,13 @@ import { getGlucoseDataForPeriod } from "./utils/getGlucoseDataForPeriod";
 export const Test3 = () => {
 
     const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
+    
     // This should be done in the backend
-    const hours12data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
-    const hours24data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);
-    const days3data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 3 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 2 === 0), [glucoseData]);
-    const days7data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 5 === 0), [glucoseData]);
-    const days14data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 9 === 0), [glucoseData]);
+    const hours12data : GlucoseData = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
+    const hours24data : GlucoseData = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);
+    const days3data : GlucoseData = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 3 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 2 === 0), [glucoseData]);
+    const days7data : GlucoseData = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 5 === 0), [glucoseData]);
+    const days14data : GlucoseData = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 9 === 0), [glucoseData]);
 
     const [chartData, setChartData] = useState(hours12data);
     const [cursorValue, setCursorValue] = useState<{x: number, y: number | undefined}>();
@@ -63,7 +61,7 @@ export const Test3 = () => {
     // }
     // },[chartData])
 
-    const calculateAverageGL = (data : GlucoseEvent[]) => {
+    const calculateAverageGL = (data : GlucoseData) => {
         if(!chartData)
             return
         let sum = 0
@@ -75,7 +73,7 @@ export const Test3 = () => {
         return sum/count
     }
 
-    const changeData = (data: GlucoseEvent[]) => {
+    const changeData = (data: GlucoseData) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
         setChartData(data)
       }

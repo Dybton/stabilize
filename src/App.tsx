@@ -21,6 +21,8 @@ import {
 } from "@gorhom/bottom-sheet";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Modal } from "react-native";
+import AddFood from "./components/AddFood";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -83,6 +85,7 @@ const TabNavigator = ({ handlePresentModalPress }) => {
 };
 
 export default function App() {
+  const [isAddFoodModalVisible, setAddFoodModalVisible] = useState(false);
   const bottomSheetModalRef = useRef(null);
 
   // callbacks
@@ -93,7 +96,24 @@ export default function App() {
   // variables
   const snapPoints = useMemo(() => ["25%", "50%"], []);
 
-  const handleSheetChanges = useCallback((index) => {}, []);
+  const handleSheetChanges = useCallback((index) => {}, []); // add type here
+
+  if (isAddFoodModalVisible) {
+    return (
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={isAddFoodModalVisible}
+        onRequestClose={() => {
+          setAddFoodModalVisible(!isAddFoodModalVisible);
+        }}
+      >
+        <View style={styles.modalView}>
+          <AddFood setAddFoodModalVisible={setAddFoodModalVisible} />
+        </View>
+      </Modal>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -125,9 +145,11 @@ export default function App() {
               <View style={styles2.roundButtonContainer}>
                 <TouchableOpacity
                   style={styles2.roundButton}
+                  onPress={() => setAddFoodModalVisible(true)}
                 ></TouchableOpacity>
                 <Text style={{ marginTop: 10 }}>Diet</Text>
               </View>
+
               <View style={styles2.roundButtonContainer}>
                 <TouchableOpacity
                   style={styles2.roundButton}
@@ -193,5 +215,11 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: "center",
+  },
+  modalView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
   },
 });

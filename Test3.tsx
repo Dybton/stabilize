@@ -11,7 +11,14 @@ import glucoseData from "./DummyData";
 import dummyGlucoseData from "./DummyData2";
 import { getGlucoseDataForPeriod } from "./utils/getGlucoseDataForPeriod";
 
-  const findClosestPoint = (data, value) => {
+  type GlucoseEvent = {
+    x: number;
+    y: number;
+  }
+
+
+  const findClosestPoint = (data :GlucoseEvent[], value: GlucoseEvent) => {
+    if(!data) return
     let closestPoint = data[0];
     let closestDistance = Math.abs(data[0].x - value.x);
   
@@ -22,7 +29,6 @@ import { getGlucoseDataForPeriod } from "./utils/getGlucoseDataForPeriod";
         closestPoint = data[i];
       }
     }
-  
     return closestPoint;
   }
 
@@ -32,17 +38,18 @@ export const Test3 = () => {
 
     const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
 
+
     // This should be done in the backend
-    const hours12data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
-    const hours24data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);
-    const days3data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 3 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 2 === 0), [glucoseData]);
-    const days7data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 5 === 0), [glucoseData]);
-    const days14data = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 9 === 0), [glucoseData]);
+    const hours12data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
+    const hours24data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);
+    const days3data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 3 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 2 === 0), [glucoseData]);
+    const days7data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 5 === 0), [glucoseData]);
+    const days14data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 9 === 0), [glucoseData]);
 
     console.debug(hours12data)
 
     const [chartData, setChartData] = useState(hours12data);
-    const [cursorValue, setCursorValue] = useState();
+    const [cursorValue, setCursorValue] = useState<{x: number, y: number}>(undefined);
     const [pressed, setPressed] = useState(false);
     const [averageGL, setAverageGL] = useState(0)
     const [timeframe, setTimeframe] = useState("12H") // make this into an enum
@@ -52,7 +59,7 @@ export const Test3 = () => {
       if (chartData.length > 0) {
           const val =  chartData[chartData.length - 1].x
           if(!cursorValue)
-            setCursorValue({x: val, y: chartData[chartData.length - 1].y})
+            setCursorValue({x: val ?? 0, y: chartData[chartData.length - 1].y})
       }
   },[cursorValue, chartData])
 

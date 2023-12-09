@@ -91,7 +91,6 @@ export default function App() {
   const snapPoints = useMemo(() => ['25%', '50%'], []);
 
   const handleSheetChanges = useCallback((index) => {
-    console.log('handleSheetChanges', index);
   }, []);
   
   return (
@@ -109,15 +108,67 @@ export default function App() {
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
         >
-          <View style={styles.contentContainer}>
-            <Text>Awesome 🎉</Text>
+          <View style={styles2.contentContainer}>
+            <View style={styles2.roundButtonContainer}>
+              <TouchableOpacity style={styles2.roundButton}></TouchableOpacity>
+              <Text style={{ marginTop: 10 }}>Sleep</Text> 
+            </View>
+            <View style={styles2.roundButtonContainer}>
+              <TouchableOpacity style={styles2.roundButton}></TouchableOpacity>
+              <Text style={{ marginTop: 10 }}>Diet</Text>
+            </View>
+            <View style={styles2.roundButtonContainer}>
+              <TouchableOpacity style={styles2.roundButton}></TouchableOpacity>
+              <Text style={{ marginTop: 10 }}>Activity</Text>
+            </View>
+          </View>
+          <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+            <TouchableOpacity 
+              style={styles2.closeButton} 
+              onPress={() => bottomSheetModalRef.current?.dismiss()}
+            >
+              <Text>Close</Text>
+            </TouchableOpacity>
           </View>
         </BottomSheetModal>
       </NavigationContainer>
     </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+    </GestureHandlerRootView> 
   );
 }
+
+const styles2 = StyleSheet.create({
+  // ... other styles
+  contentContainer: {
+    flexDirection: 'row', 
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  roundButtonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center', // This will center the text vertically
+    margin: 10,
+  },
+  roundButton: {
+    width: 100,
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: 'skyblue',
+  },
+  closeButton: {
+    marginBottom: 10,
+    alignSelf: 'center',
+    width: 100,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    backgroundColor: 'skyblue',
+  },
+});
 
 const styles = StyleSheet.create({
   container: {

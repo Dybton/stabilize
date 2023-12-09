@@ -34,11 +34,7 @@ import { getGlucoseDataForPeriod } from "./utils/getGlucoseDataForPeriod";
 
 export const Test3 = () => {
 
-    // We need to record a bunch of events 
-
     const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
-
-
     // This should be done in the backend
     const hours12data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000), new Date()), [glucoseData]);
     const hours24data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000), new Date()), [glucoseData]);
@@ -46,10 +42,8 @@ export const Test3 = () => {
     const days7data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 5 === 0), [glucoseData]);
     const days14data : GlucoseEvent[] = useMemo(() => getGlucoseDataForPeriod(dummyGlucoseData, new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000), new Date()).filter((_, index) => index % 9 === 0), [glucoseData]);
 
-    console.debug(hours12data)
-
     const [chartData, setChartData] = useState(hours12data);
-    const [cursorValue, setCursorValue] = useState<{x: number, y: number}>(undefined);
+    const [cursorValue, setCursorValue] = useState<{x: number, y: number | undefined}>();
     const [pressed, setPressed] = useState(false);
     const [averageGL, setAverageGL] = useState(0)
     const [timeframe, setTimeframe] = useState("12H") // make this into an enum
@@ -69,7 +63,7 @@ export const Test3 = () => {
     // }
     // },[chartData])
 
-    const calculateAverageGL = (data) => {
+    const calculateAverageGL = (data : GlucoseEvent[]) => {
         if(!chartData)
             return
         let sum = 0
@@ -81,7 +75,7 @@ export const Test3 = () => {
         return sum/count
     }
 
-    const changeData = (data) => {
+    const changeData = (data: GlucoseEvent[]) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
         setChartData(data)
       }
@@ -119,7 +113,7 @@ export const Test3 = () => {
             onCursorChange={(value) => {
                 if (value) {
                 // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                setCursorValue(value)
+                setCursorValue(typeof value === 'number' ? { x: value, y: value } : value)
                 }
             }}
             onTouchEnd={() => {

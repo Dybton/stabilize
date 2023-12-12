@@ -24,6 +24,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Modal } from "react-native";
 import AddFood from "./components/AddFood";
 import AddActivity from "./components/AddActivity";
+import AddSleep from "./components/AddSleep";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -88,6 +89,7 @@ const TabNavigator = ({ handlePresentModalPress }) => {
 export default function App() {
   const [isAddFoodModalVisible, setAddFoodModalVisible] = useState(false);
   const [isActivityModalVisible, setActivityModalVisible] = useState(false);
+  const [isSleepModalVisible, setSleepModalVisible] = useState(false);
   const bottomSheetModalRef = useRef(null);
 
   // callbacks
@@ -133,6 +135,23 @@ export default function App() {
     );
   }
 
+  if (isSleepModalVisible) {
+    return (
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={isSleepModalVisible}
+        onRequestClose={() => {
+          setSleepModalVisible(!isSleepModalVisible);
+        }}
+      >
+        <View style={styles.modalView}>
+          <AddSleep setSleepModalVisible={setSleepModalVisible} />
+        </View>
+      </Modal>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
@@ -157,6 +176,7 @@ export default function App() {
               <View style={styles2.roundButtonContainer}>
                 <TouchableOpacity
                   style={styles2.roundButton}
+                  onPress={() => setSleepModalVisible(true)}
                 ></TouchableOpacity>
                 <Text style={{ marginTop: 10 }}>Sleep</Text>
               </View>

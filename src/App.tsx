@@ -25,6 +25,7 @@ import { Modal } from "react-native";
 import AddFood from "./components/AddFood";
 import AddActivity from "./components/AddActivity";
 import AddSleep from "./components/AddSleep";
+import Log from "./screens/Log";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -52,7 +53,7 @@ const TabNavigator = ({ handlePresentModalPress }) => {
       />
       <Tab.Screen
         name='Add'
-        component={Testo}
+        component={GlucoseLevelChart}
         options={{
           tabBarIcon: ({ focused }) => (
             <TouchableOpacity onPress={handlePresentModalPress}>
@@ -74,7 +75,7 @@ const TabNavigator = ({ handlePresentModalPress }) => {
       />
       <Tab.Screen
         name='Notes'
-        component={Testo}
+        component={Log}
         options={{
           tabBarIcon: ({ focused }) => (
             <BookIcon color={focused ? "blue" : "grey"} />

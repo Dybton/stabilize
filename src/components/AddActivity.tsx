@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     shadowColor: "black",
     shadowOffset: { height: 0, width: 0 },
     elevation: 5,
+    width: "90%",
   },
   closeButton: {
     alignSelf: "flex-end",

@@ -23,6 +23,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Modal } from "react-native";
 import AddFood from "./components/AddFood";
+import AddActivity from "./components/AddActivity";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -86,6 +87,7 @@ const TabNavigator = ({ handlePresentModalPress }) => {
 
 export default function App() {
   const [isAddFoodModalVisible, setAddFoodModalVisible] = useState(false);
+  const [isActivityModalVisible, setActivityModalVisible] = useState(false);
   const bottomSheetModalRef = useRef(null);
 
   // callbacks
@@ -110,6 +112,22 @@ export default function App() {
       >
         <View style={styles.modalView}>
           <AddFood setAddFoodModalVisible={setAddFoodModalVisible} />
+        </View>
+      </Modal>
+    );
+  }
+  if (isActivityModalVisible) {
+    return (
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={isActivityModalVisible}
+        onRequestClose={() => {
+          setActivityModalVisible(!isActivityModalVisible);
+        }}
+      >
+        <View style={styles.modalView}>
+          <AddActivity setActivityModalVisible={setActivityModalVisible} />
         </View>
       </Modal>
     );
@@ -142,6 +160,7 @@ export default function App() {
                 ></TouchableOpacity>
                 <Text style={{ marginTop: 10 }}>Sleep</Text>
               </View>
+
               <View style={styles2.roundButtonContainer}>
                 <TouchableOpacity
                   style={styles2.roundButton}
@@ -153,6 +172,7 @@ export default function App() {
               <View style={styles2.roundButtonContainer}>
                 <TouchableOpacity
                   style={styles2.roundButton}
+                  onPress={() => setActivityModalVisible(true)}
                 ></TouchableOpacity>
                 <Text style={{ marginTop: 10 }}>Activity</Text>
               </View>

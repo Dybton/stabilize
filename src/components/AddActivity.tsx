@@ -6,18 +6,20 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import Slider from "@react-native-community/slider";
 
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 
-type AddFoodProps = {
-  setAddFoodModalVisible: (val: boolean) => void;
+type AddActivityProps = {
+  setActivityModalVisible: (val: boolean) => void;
 };
 
-const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
-  const [meal, setMeal] = useState("");
+const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
+  const [activity, setActivity] = useState("");
   const [date, setDate] = useState(new Date());
+  const [duration, setDuration] = useState(0);
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
@@ -25,29 +27,39 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   };
 
   const handleSaveAndExit = () => {
-    setAddFoodModalVisible(false);
+    setActivityModalVisible(false);
   };
 
   const handleSaveAndAddAnother = () => {
-    setAddFoodModalVisible(false);
+    setActivityModalVisible(false);
   };
+
+  const parsedDuration = Math.floor(duration);
 
   return (
     <View style={styles.card}>
       <TouchableOpacity
         style={styles.closeButton}
-        onPress={() => setAddFoodModalVisible(false)}
+        onPress={() => setActivityModalVisible(false)}
       >
         <Text style={styles.closeButtonText}>×</Text>
       </TouchableOpacity>
-      <Text style={styles.title}>Enter your meal</Text>
-      <Text style={styles.label}>Meal</Text>
+      <Text style={styles.title}>Enter your activity</Text>
+      <Text style={styles.label}>Activity</Text>
       <TextInput
         style={{ ...styles.input, height: "30%" }}
-        onChangeText={setMeal}
-        value={meal}
-        placeholder='Describe your meal'
+        onChangeText={setActivity}
+        value={activity}
+        placeholder='Describe your activity'
         multiline={true}
+      />
+      <Text style={styles.label}>Duration</Text>
+      <Text>{parsedDuration} minutes</Text>
+      <Slider
+        style={{ height: 40 }}
+        minimumValue={0}
+        maximumValue={120}
+        onValueChange={(val) => setDuration(val)}
       />
       <Text style={styles.label}>Time</Text>
       <DateTimePicker
@@ -121,4 +133,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddFood;
+export default AddActivity;

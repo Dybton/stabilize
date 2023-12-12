@@ -7,19 +7,26 @@ import {
   StyleSheet,
 } from "react-native";
 
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
+
 type AddFoodProps = {
   setAddFoodModalVisible: (val: boolean) => void;
 };
 
 const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   const [meal, setMeal] = useState("");
-  const [time, setTime] = useState(
-    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  );
+
+  const [date, setDate] = useState(new Date(1598051730000));
+
+  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentDate = selectedDate;
+    setDate(currentDate);
+  };
 
   const handleSaveAndExit = () => {
     setAddFoodModalVisible(false);
-    console.log("test");
   };
 
   const handleSaveAndAddAnother = () => {
@@ -37,13 +44,25 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
       <Text style={styles.title}>Enter your meal</Text>
       <Text style={styles.label}>Meal</Text>
       <TextInput
-        style={styles.input}
+        style={{ ...styles.input, height: "30%" }}
         onChangeText={setMeal}
         value={meal}
         placeholder='Describe your meal'
+        multiline={true}
       />
       <Text style={styles.label}>Time</Text>
-      <TextInput style={styles.input} onChangeText={setTime} value={time} />
+      <DateTimePicker
+        value={date}
+        is24Hour={true}
+        onChange={onChange}
+        mode={"time"}
+        locale='en_GB'
+        style={{
+          marginLeft: "-3%",
+          marginBottom: "5%",
+          alignSelf: "flex-start",
+        }}
+      />
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleSaveAndExit}>
           <Text>Save & Exit</Text>

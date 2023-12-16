@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
-import { BookIcon } from "../components/Icons/BookIcon";
+import FoodIconBasic from "../components/Icons/FoodIconBasic";
+import ActivityIcon from "../components/Icons/ActivityIcon";
+import SleepIcon from "../components/Icons/SleepIcon";
 
 const sleepData = {
   total: "7h 12m",
@@ -10,7 +12,6 @@ const sleepData = {
 
 const activities = [
   { name: "Upper body workout", duration: "1h", time: "22:44" },
-  // Add more activities as needed
 ];
 
 const meals = [
@@ -51,7 +52,7 @@ const SleepComponent = ({ sleepData }) => (
       }}
     >
       <View style={{ flex: 1 }}>
-        <BookIcon />
+        <SleepIcon />
       </View>
 
       <View style={{ flex: 3 }}>
@@ -90,7 +91,7 @@ const ActivitySection = ({ activities }) => (
           }}
         >
           <View style={{ flex: 1 }}>
-            <BookIcon />
+            <ActivityIcon />
           </View>
 
           <View style={{ flex: 4 }}>
@@ -123,7 +124,7 @@ const MealsSection = ({ meals }) => (
         }}
       >
         <View style={{ flex: 1 }}>
-          <BookIcon />
+          <FoodIconBasic />
         </View>
 
         <View style={{ flex: 4 }}>

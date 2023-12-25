@@ -26,33 +26,13 @@ import AddFood from "./components/AddFood";
 import AddActivity from "./components/AddActivity";
 import AddSleep from "./components/AddSleep";
 import Log from "./screens/Log";
-
-import "react-native-url-polyfill/auto";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "./api/supabaseClient";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const supabaseUrl = "https://otnwcihcxevjhlzrkgwk.supabase.co";
-const supabaseAnonKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90bndjaWhjeGV2amhsenJrZ3drIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDMxMDQzMjAsImV4cCI6MjAxODY4MDMyMH0.dtldAtubHDX0cyp1uab5em-YT2O9E2Zq7CPxhwDw87c";
-
-export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey
-  // auth: {
-  //   storage: AsyncStorage,
-  //   autoRefreshToken: true,
-  //   persistSession: true,
-  //   detectSessionInUrl: false,
-  // },
-);
-
 async function getCountries() {
-  const { data } = await supabase.from("countries").select();
-  console.debug(data);
-  // setCountries(data);
+  const { data } = await supabase.from("activities").select();
 }
 
 const TabNavigator = ({ handlePresentModalPress }) => {

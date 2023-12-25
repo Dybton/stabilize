@@ -10,6 +10,7 @@ import {
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
+import { supabase } from "../api/supabaseClient";
 
 type AddFoodProps = {
   setAddFoodModalVisible: (val: boolean) => void;
@@ -17,19 +18,34 @@ type AddFoodProps = {
 
 const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   const [meal, setMeal] = useState("");
-  const [date, setDate] = useState(new Date());
+  const [timestamp, setTimestamp] = useState(new Date());
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
-    setDate(currentDate);
+    setTimestamp(currentDate);
   };
 
-  const handleSaveAndExit = () => {
-    setAddFoodModalVisible(false);
+  const handleSaveAndExit = async () => {
+    const { data, error } = await supabase
+      .from("meals")
+      .insert([{ time: timestamp, description: meal }]);
+    if (error) {
+      console.log("Error saving meal: ", error);
+    } else {
+      setAddFoodModalVisible(false);
+    }
   };
 
-  const handleSaveAndAddAnother = () => {
-    setAddFoodModalVisible(false);
+  const handleSaveAndAddAnother = async () => {
+    const { data, error } = await supabase
+      .from("meals")
+      .insert([{ time: timestamp, description: meal }]);
+    if (error) {
+      console.log("Error saving meal: ", error);
+    } else {
+      setMeal("");
+      setTimestamp(new Date());
+    }
   };
 
   return (
@@ -51,7 +67,7 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
       />
       <Text style={styles.label}>Time</Text>
       <DateTimePicker
-        value={date}
+        value={timestamp}
         is24Hour={true}
         onChange={onChange}
         mode={"time"}

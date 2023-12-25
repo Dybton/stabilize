@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,26 +12,51 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 
+import { supabase } from "../api/supabaseClient";
+
 type AddActivityProps = {
   setActivityModalVisible: (val: boolean) => void;
 };
 
 const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
+  // Remember to add check
   const [activity, setActivity] = useState("");
-  const [date, setDate] = useState(new Date());
+  const [timestamp, setTimestamp] = useState(new Date());
   const [duration, setDuration] = useState(0);
+  const [sliderValue, setSliderValue] = useState(0);
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
-    setDate(currentDate);
+    setTimestamp(currentDate);
   };
 
-  const handleSaveAndExit = () => {
-    setActivityModalVisible(false);
+  useEffect(() => {
+    console.log(activity);
+  }, [duration]);
+
+  const handleSaveAndExit = async () => {
+    const { data, error } = await supabase
+      .from("activities")
+      .insert([{ time: timestamp, description: activity, duration }]);
+    if (error) {
+      console.log("Error saving meal: ", error);
+    } else {
+      setActivityModalVisible(false);
+    }
   };
 
-  const handleSaveAndAddAnother = () => {
-    setActivityModalVisible(false);
+  const handleSaveAndAddAnother = async () => {
+    const { data, error } = await supabase
+      .from("activities")
+      .insert([{ time: timestamp, description: activity, duration }]);
+    if (error) {
+      console.log("Error saving meal: ", error);
+    } else {
+      setActivity("");
+      setTimestamp(new Date());
+      setDuration(0);
+      setSliderValue(0);
+    }
   };
 
   const parsedDuration = Math.floor(duration);
@@ -59,11 +84,15 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
         style={{ height: 40 }}
         minimumValue={0}
         maximumValue={120}
-        onValueChange={(val) => setDuration(val)}
+        onValueChange={(val) => {
+          setDuration(val);
+          setSliderValue(val);
+        }}
+        value={sliderValue}
       />
-      <Text style={styles.label}>Time</Text>
+      <Text style={styles.label}>Start time</Text>
       <DateTimePicker
-        value={date}
+        value={timestamp}
         is24Hour={true}
         onChange={onChange}
         mode={"time"}

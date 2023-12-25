@@ -12,30 +12,48 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 
+import { supabase } from "../api/supabaseClient";
+
 type AddSleepProps = {
   setSleepModalVisible: (val: boolean) => void;
 };
 
 const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
-  const [date, setDate] = useState(new Date());
-  const [durationInMin, setDurationInMin] = useState(0);
+  const [timestamp, setTimestamp] = useState(new Date());
+  const [duration, setDuration] = useState(0);
   const [sleepQuality, setSleepQuality] = useState(0);
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
-    setDate(currentDate);
+    setTimestamp(currentDate);
   };
 
-  const handleSaveAndExit = () => {
-    setSleepModalVisible(false);
+  const handleSaveAndExit = async () => {
+    const { data, error } = await supabase
+      .from("sleep")
+      .insert([{ time: timestamp, duration, quality: sleepQuality }]);
+    if (error) {
+      console.log("Error saving meal: ", error);
+    } else {
+      setSleepModalVisible(false);
+    }
   };
 
-  const handleSaveAndAddAnother = () => {
-    setSleepModalVisible(false);
+  const handleSaveAndAddAnother = async () => {
+    const { data, error } = await supabase
+      .from("sleep")
+      .insert([{ time: timestamp, duration, quality: sleepQuality }]);
+    if (error) {
+      console.log("Error saving meal: ", error);
+    } else {
+      setTimestamp(new Date());
+      setDuration(0);
+      setSleepQuality(0);
+    }
   };
 
-  const hours = Math.floor(durationInMin / 60);
-  const minutes = Math.floor(durationInMin % 60);
+  const hours = Math.floor(duration / 60);
+  const minutes = Math.floor(duration % 60);
   const parsedDuration = `${hours}h ${minutes}m`;
 
   const parseSleepQuality = (sleepQuality: number) => {
@@ -66,7 +84,7 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
 
       <Text style={styles.label}>Bedtime</Text>
       <DateTimePicker
-        value={date}
+        value={timestamp}
         is24Hour={true}
         onChange={onChange}
         mode={"time"}
@@ -83,7 +101,7 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
         style={{ height: 40 }}
         minimumValue={0}
         maximumValue={600}
-        onValueChange={(val) => setDurationInMin(val)}
+        onValueChange={(val) => setDuration(val)}
       />
       <Text style={styles.label}>Sleep Quality</Text>
       <Text>{parseSleepQuality(sleepQuality)}</Text>

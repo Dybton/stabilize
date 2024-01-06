@@ -79,12 +79,17 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
         }}
       />
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleSaveAndExit}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleSaveAndExit}
+          disabled={!meal}
+        >
           <Text>Save & Exit</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
           onPress={handleSaveAndAddAnother}
+          disabled={!meal}
         >
           <Text>Save & Add Another</Text>
         </TouchableOpacity>

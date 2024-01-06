@@ -104,12 +104,17 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
         }}
       />
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleSaveAndExit}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleSaveAndExit}
+          disabled={!activity}
+        >
           <Text>Save & Exit</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
           onPress={handleSaveAndAddAnother}
+          disabled={!activity}
         >
           <Text>Save & Add Another</Text>
         </TouchableOpacity>

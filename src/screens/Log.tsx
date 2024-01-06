@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import FoodIconBasic from "../components/Icons/FoodIconBasic";
 import ActivityIcon from "../components/Icons/ActivityIcon";
 import SleepIcon from "../components/Icons/SleepIcon";
+import { supabase } from "../api/supabaseClient";
+import { yesterdayTimeStamp } from "../utils/yesterdayTimeStamp";
+import { formatTime } from "../utils/formatTime";
 
 const sleepData = {
   total: "7h 12m",
@@ -10,28 +13,52 @@ const sleepData = {
   bedTime: "22:44",
 };
 
-const activities = [
-  { name: "Upper body workout", duration: "1h", time: "22:44" },
-];
-
-const meals = [
-  {
-    description:
-      "Mixed salad, carrots, cucumbers, feta, avocado, spinach, and small falafels with hummus",
-    time: "22:44",
-  },
-  { description: "A cup of herbal tea", time: "22:44" },
-  {
-    description:
-      "Mixed salad, red bell peppers, feta, tomatoes, chicken breast, croutons, and mayo dressing",
-    time: "22:44",
-  },
-  // Add more meals as needed
-];
-
 const Log = () => {
+  const [sleepData2, setSleepData] = React.useState(null);
+  const [meals, setMeals] = React.useState(null);
+  const [activities, setActivities] = React.useState(null);
+
+  useEffect(() => {
+    const fetchSleepData = async () => {
+      const { data, error } = await supabase.from("sleep").select("*");
+      if (error || !data) {
+        // To do: Get the right sleep data
+        console.log("Error fetching sleep data: ", error);
+        return;
+      } else {
+        console.log("Sleep data: ", data);
+        setSleepData(data);
+      }
+    };
+
+    const fetchMealData = async () => {
+      const { data, error } = await supabase.from("meals").select("*");
+      if (error || !data) {
+        console.log("Error fetching meal data: ", error);
+        return;
+      } else {
+        setMeals(data);
+      }
+    };
+
+    const fetchActivityData = async () => {
+      const { data, error } = await supabase.from("activities").select("*");
+      if (error || !data) {
+        console.log("Error fetching meal data: ", error);
+        return;
+      } else {
+        setActivities(data);
+      }
+    };
+
+    fetchSleepData();
+    fetchMealData();
+    fetchActivityData();
+  }, []);
+
   return (
     <ScrollView style={styles.container}>
+      <Text style={styles.h1}>Today</Text>
       <SleepComponent sleepData={sleepData} />
       <ActivitySection activities={activities} />
       <MealsSection meals={meals} />
@@ -39,9 +66,10 @@ const Log = () => {
   );
 };
 
-const SleepComponent = ({ sleepData }) => (
+const SleepComponent = ({ sleepData }) => {
+  return (
   <View style={styles.section}>
-    <Text style={styles.title}>Sleep</Text>
+      <Text style={styles.h2}>Sleep</Text>
     <View
       style={{
         ...styles.banner,
@@ -72,13 +100,19 @@ const SleepComponent = ({ sleepData }) => (
     </View>
   </View>
 );
+};
 
-const ActivitySection = ({ activities }) => (
+const ActivitySection = ({ activities }) => {
+  if (!activities) {
+    return <Text>Loading...</Text>;
+  }
+
+  return (
   <View style={styles.section}>
-    <Text style={styles.title}>Activity</Text>
+      <Text style={styles.h2}>Activities</Text>
     {activities.map(
       (
-        activity: { name: string; duration: string; time: string },
+          activity: { description: string; time: number; duration: number },
         index: number
       ) => (
         <View
@@ -88,58 +122,80 @@ const ActivitySection = ({ activities }) => (
             flex: 1,
             flexDirection: "row",
             alignItems: "center",
-          }}
+              justifyContent: "space-between",
+            }}
         >
-          <View style={{ flex: 1 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                width: "40%",
+              }}
+            >
             <ActivityIcon />
+              <Text numberOfLines={2} style={{ marginLeft: 8 }}>
+                {activity.description}
+              </Text>
           </View>
 
-          <View style={{ flex: 4 }}>
-            <Text>Activity:</Text>
-            <Text>{activity.name}</Text>
+            <View>
+              <Text>Duration:</Text>
+              <Text>{Math.floor(activity.duration)} min</Text>
           </View>
 
-          <View style={{ flex: 1.2, marginLeft: 5 }}>
-            <Text>Duration:</Text>
-            <Text>{activity.duration}</Text>
+            <View>
+              <Text>Time:</Text>
+              <Text>{formatTime(activity.time)}</Text>
           </View>
         </View>
       )
     )}
   </View>
 );
+};
 
-// Subcomponent for displaying meal information
-const MealsSection = ({ meals }) => (
+const MealsSection = ({ meals }) => {
+  if (!meals) {
+    return <Text>Loading...</Text>;
+  }
+
+  return (
   <View style={styles.section}>
-    <Text style={styles.title}>Meals</Text>
-    {meals.map((meal: { description: string; time: string }, index: number) => (
+      <Text style={styles.h2}>Meals</Text>
+      {meals.map(
+        (meal: { description: string; time: number }, index: number) => (
       <View
         key={index}
         style={{
           ...styles.banner,
-          flex: 1,
           flexDirection: "row",
+              justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <View style={{ flex: 1 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                width: "80%",
+              }}
+            >
           <FoodIconBasic />
-        </View>
-
-        <View style={{ flex: 4 }}>
-          <Text>Food:</Text>
+              <View style={{ marginLeft: 8 }}>
           <Text numberOfLines={2}>{meal.description}</Text>
+              </View>
         </View>
 
-        <View style={{ flex: 1.2, marginLeft: 5 }}>
+            <View style={{ alignItems: "flex-end" }}>
           <Text>Time:</Text>
-          <Text>{meal.time}</Text>
+              <Text>{formatTime(meal.time)}</Text>
         </View>
       </View>
-    ))}
+        )
+      )}
   </View>
 );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -153,7 +209,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "red",
   },
-  title: {
+  h1: {
+    fontSize: 30,
+    fontWeight: "bold",
+    marginBottom: 5,
+    textAlign: "center",
+  },
+  h2: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 5,

@@ -68,9 +68,8 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
       <Text style={styles.label}>Time</Text>
       <DateTimePicker
         value={timestamp}
-        is24Hour={true}
         onChange={onChange}
-        mode={"time"}
+        mode={"datetime"}
         locale='en_GB'
         style={{
           marginLeft: "-3%",

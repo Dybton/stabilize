@@ -13,6 +13,9 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 
 import { supabase } from "../api/supabaseClient";
+import { yesterdayTimeStamp } from "../utils/yesterdayTimeStamp";
+import { parseSleepQuality } from "../utils/parseSleepQuality";
+import { formatDuration } from "../utils/formatDuration";
 
 type AddSleepProps = {
   setSleepModalVisible: (val: boolean) => void;
@@ -46,30 +49,10 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
-      setTimestamp(new Date());
+      setTimestamp(yesterdayTimeStamp);
       setDuration(0);
       setSleepQuality(0);
     }
-  };
-
-  const hours = Math.floor(duration / 60);
-  const minutes = Math.floor(duration % 60);
-  const parsedDuration = `${hours}h ${minutes}m`;
-
-  const parseSleepQuality = (sleepQuality: number) => {
-    let parsedSleepQuality = "";
-    if (sleepQuality <= 1) {
-      parsedSleepQuality = "Very Poor";
-    } else if (sleepQuality <= 2) {
-      parsedSleepQuality = "Poor";
-    } else if (sleepQuality <= 3) {
-      parsedSleepQuality = "Fair";
-    } else if (sleepQuality <= 4) {
-      parsedSleepQuality = "Good";
-    } else if (sleepQuality <= 5) {
-      parsedSleepQuality = "Excellent";
-    }
-    return parsedSleepQuality;
   };
 
   return (
@@ -85,9 +68,8 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
       <Text style={styles.label}>Bedtime</Text>
       <DateTimePicker
         value={timestamp}
-        is24Hour={true}
         onChange={onChange}
-        mode={"time"}
+        mode={"datetime"}
         locale='en_GB'
         style={{
           marginLeft: "-3%",
@@ -96,7 +78,7 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
         }}
       />
       <Text style={styles.label}>Duration</Text>
-      <Text>{parsedDuration} hours</Text>
+      <Text>{formatDuration(duration)} hours</Text>
       <Slider
         style={{ height: 40 }}
         minimumValue={0}

@@ -93,9 +93,8 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
       <Text style={styles.label}>Start time</Text>
       <DateTimePicker
         value={timestamp}
-        is24Hour={true}
         onChange={onChange}
-        mode={"time"}
+        mode={"datetime"}
         locale='en_GB'
         style={{
           marginLeft: "-3%",

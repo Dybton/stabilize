@@ -22,16 +22,18 @@ const Log = () => {
 
   useEffect(() => {
     const fetchSleepData = async () => {
-      const cutoff = new Date(startOfDay.setHours(startOfDay.getHours() - 9));
+      const cufoffStart = new Date();
+      cufoffStart.setDate(cufoffStart.getDate() - 1);
+      cufoffStart.setHours(18, 0, 0, 0);
 
-      console.log("Cutoff: ", cutoff);
-      console.log("new Date(): ", new Date());
+      const cutOffEnd = new Date();
+      cutOffEnd.setHours(18, 0, 0, 0);
 
       const { data, error } = await supabase
         .from("sleep")
         .select("*")
-        .gte("time", cutoff)
-        .lte("time", new Date());
+        .gte("time", cufoffStart)
+        .lte("time", cutOffEnd);
 
       console.log("Sleep data: ", data);
       if (error || !data) {
@@ -91,7 +93,16 @@ const Log = () => {
 
 const SleepComponent = ({ sleepData }) => {
   if (!sleepData) {
-    return <Text>Loading...</Text>;
+    return <StatusComponent text={"Loading..."} title={"Sleep"} />;
+  }
+
+  if (sleepData.length === 0) {
+    return (
+      <StatusComponent
+        text={"No sleep have been logged for today..."}
+        title={"Sleep"}
+      />
+    );
   }
 
   return (
@@ -140,7 +151,16 @@ const SleepComponent = ({ sleepData }) => {
 
 const ActivitySection = ({ activities }) => {
   if (!activities) {
-    return <Text>Loading...</Text>;
+    return <StatusComponent text={"Loading..."} title={"Activities"} />;
+  }
+
+  if (activities.length === 0) {
+    return (
+      <StatusComponent
+        text={"Loading..."}
+        title={"No activities have been logged for today."}
+      />
+    );
   }
 
   return (
@@ -191,15 +211,18 @@ const ActivitySection = ({ activities }) => {
 };
 
 const MealsSection = ({ meals }) => {
-  // if (meals.length === 0) {
-  //   return <Text>No meals for this time period.</Text>;
-  // }
-
   if (!meals) {
-    return <Text>Loading...</Text>;
+    return <StatusComponent text={"Loading..."} title={"Meals"} />;
   }
 
-  console.log("Meals: ", meals);
+  if (meals.length === 0) {
+    return (
+      <StatusComponent
+        text={"No meals have been logged for today."}
+        title={"Meals"}
+      />
+    );
+  }
 
   return (
     <View style={styles.section}>
@@ -238,6 +261,23 @@ const MealsSection = ({ meals }) => {
     </View>
   );
 };
+
+const StatusComponent = ({ title, text }) => (
+  <View style={styles.section}>
+    <Text style={styles.h2}>{title}</Text>
+    <View
+      style={{
+        ...styles.banner,
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <Text>{text}</Text>
+    </View>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {

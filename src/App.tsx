@@ -27,6 +27,7 @@ import AddActivity from "./components/AddActivity";
 import AddSleep from "./components/AddSleep";
 import Log from "./screens/Log";
 import { supabase } from "./api/supabaseClient";
+import Auth from "./screens/auth/Auth";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -80,7 +81,7 @@ const TabNavigator = ({ handlePresentModalPress }) => {
       />
       <Tab.Screen
         name='Notes'
-        component={Log}
+        component={Auth}
         options={{
           tabBarIcon: ({ focused }) => (
             <BookIcon color={focused ? "blue" : "grey"} />

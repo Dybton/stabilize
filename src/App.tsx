@@ -25,16 +25,15 @@ import { Modal } from "react-native";
 import AddFood from "./components/AddFood";
 import AddActivity from "./components/AddActivity";
 import AddSleep from "./components/AddSleep";
-import Log from "./screens/Log";
+import Reset from "./screens/auth/Reset";
 import { supabase } from "./api/supabaseClient";
 import Auth from "./screens/auth/Auth";
+import * as Linking from "expo-linking";
+
+const prefix = Linking.createURL("/"); // creates a prefix, ie what comes before the path
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-
-async function getCountries() {
-  const { data } = await supabase.from("activities").select();
-}
 
 const TabNavigator = ({ handlePresentModalPress }) => {
   return (
@@ -94,10 +93,15 @@ const TabNavigator = ({ handlePresentModalPress }) => {
 };
 
 export default function App() {
-  useEffect(() => {
-    console.debug("useEffect");
-    getCountries();
-  }, []);
+  const linking = {
+    prefixes: [prefix],
+
+    config: {
+      screens: {
+        Auth: "auth",
+      },
+    },
+  };
 
   const [isAddFoodModalVisible, setAddFoodModalVisible] = useState(false);
   const [isActivityModalVisible, setActivityModalVisible] = useState(false);
@@ -167,7 +171,10 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
-        <NavigationContainer>
+        <NavigationContainer
+          linking={linking}
+          fallback={<Text>Loading...</Text>}
+        >
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name='Home'>
               {(props) => (
@@ -177,6 +184,7 @@ export default function App() {
                 />
               )}
             </Stack.Screen>
+            <Stack.Screen name='Auth' component={Reset} />
           </Stack.Navigator>
           <BottomSheetModal
             ref={bottomSheetModalRef}

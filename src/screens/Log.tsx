@@ -7,6 +7,7 @@ import { supabase } from "../api/supabaseClient";
 import { formatTime } from "../utils/formatTime";
 import { parseSleepQuality } from "../utils/parseSleepQuality";
 import { formatDuration } from "../utils/formatDuration";
+import { AccountIcon } from "../components/Icons/AccountIcon";
 
 const Log = () => {
   const [sleepData, setSleepData] = React.useState(null);
@@ -83,7 +84,22 @@ const Log = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.h1}>Today</Text>
+      <View style={{ flexDirection: "row", width: "95%", alignSelf: "center" }}>
+        <View style={{ flex: 1 }}>{/* Dummy */}</View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.h1}>Today</Text>
+        </View>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "flex-end",
+          }}
+        >
+          <AccountIcon />
+        </View>
+      </View>
+
       <SleepComponent sleepData={sleepData} />
       <ActivitySection activities={activities} />
       <MealsSection meals={meals} />

@@ -29,6 +29,7 @@ import Reset from "./screens/auth/Reset";
 import { supabase } from "./api/supabaseClient";
 import Auth from "./screens/auth/Auth";
 import * as Linking from "expo-linking";
+import Log from "./screens/Log";
 
 const prefix = Linking.createURL("/"); // creates a prefix, ie what comes before the path
 
@@ -79,8 +80,8 @@ const TabNavigator = ({ handlePresentModalPress }) => {
         }}
       />
       <Tab.Screen
-        name='Notes'
-        component={Auth}
+        name='Log'
+        component={Log}
         options={{
           tabBarIcon: ({ focused }) => (
             <BookIcon color={focused ? "blue" : "grey"} />

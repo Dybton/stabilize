@@ -157,8 +157,8 @@ const ActivitySection = ({ activities }) => {
   if (activities.length === 0) {
     return (
       <StatusComponent
-        text={"Loading..."}
-        title={"No activities have been logged for today."}
+        text={"No activities have been logged for today."}
+        title={"Activities"}
       />
     );
   }

@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
 import { Testo } from "./components/Testo";
 import { GlucoseLevelChart } from "./screens/GlucoseLevelChart";
 import { NavigationContainer } from "@react-navigation/native";
@@ -30,6 +30,7 @@ import { supabase } from "./api/supabaseClient";
 import Auth from "./screens/auth/Auth";
 import * as Linking from "expo-linking";
 import Log from "./screens/Log";
+import { ProfilePage } from "./screens/ProfilePage";
 
 const prefix = Linking.createURL("/"); // creates a prefix, ie what comes before the path
 
@@ -129,9 +130,11 @@ export default function App() {
           setAddFoodModalVisible(!isAddFoodModalVisible);
         }}
       >
-        <View style={styles.modalView}>
-          <AddFood setAddFoodModalVisible={setAddFoodModalVisible} />
-        </View>
+        <TouchableWithoutFeedback onPress={() => setAddFoodModalVisible(false)}>
+          <View style={styles.modalView}>
+            <AddFood setAddFoodModalVisible={setAddFoodModalVisible} />
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     );
   }
@@ -145,9 +148,13 @@ export default function App() {
           setActivityModalVisible(!isActivityModalVisible);
         }}
       >
-        <View style={styles.modalView}>
-          <AddActivity setActivityModalVisible={setActivityModalVisible} />
-        </View>
+        <TouchableWithoutFeedback
+          onPress={() => setActivityModalVisible(false)}
+        >
+          <View style={styles.modalView}>
+            <AddActivity setActivityModalVisible={setActivityModalVisible} />
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     );
   }
@@ -162,9 +169,11 @@ export default function App() {
           setSleepModalVisible(!isSleepModalVisible);
         }}
       >
-        <View style={styles.modalView}>
-          <AddSleep setSleepModalVisible={setSleepModalVisible} />
-        </View>
+        <TouchableWithoutFeedback onPress={() => setSleepModalVisible(false)}>
+          <View style={styles.modalView}>
+            <AddSleep setSleepModalVisible={setSleepModalVisible} />
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     );
   }
@@ -186,6 +195,7 @@ export default function App() {
               )}
             </Stack.Screen>
             <Stack.Screen name='Auth' component={Reset} />
+            <Stack.Screen name='Profile' component={ProfilePage} />
           </Stack.Navigator>
           <BottomSheetModal
             ref={bottomSheetModalRef}

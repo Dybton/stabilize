@@ -32,9 +32,15 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
   };
 
   const handleSaveAndExit = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const { data, error } = await supabase
       .from("sleep")
-      .insert([{ time: timestamp, duration, quality: sleepQuality }]);
+      .insert([
+        { time: timestamp, duration, quality: sleepQuality, uid: user.id },
+      ]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
@@ -43,9 +49,15 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
   };
 
   const handleSaveAndAddAnother = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const { data, error } = await supabase
       .from("sleep")
-      .insert([{ time: timestamp, duration, quality: sleepQuality }]);
+      .insert([
+        { time: timestamp, duration, quality: sleepQuality, uid: user.id },
+      ]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {

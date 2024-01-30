@@ -26,9 +26,13 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   };
 
   const handleSaveAndExit = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const { data, error } = await supabase
       .from("meals")
-      .insert([{ time: timestamp, description: meal }]);
+      .insert([{ time: timestamp, description: meal, uid: user.id }]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
@@ -37,9 +41,13 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   };
 
   const handleSaveAndAddAnother = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const { data, error } = await supabase
       .from("meals")
-      .insert([{ time: timestamp, description: meal }]);
+      .insert([{ time: timestamp, description: meal, uid: user.id }]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {

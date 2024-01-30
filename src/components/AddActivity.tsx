@@ -19,7 +19,6 @@ type AddActivityProps = {
 };
 
 const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
-  // Remember to add check
   const [activity, setActivity] = useState("");
   const [timestamp, setTimestamp] = useState(new Date());
   const [duration, setDuration] = useState(0);
@@ -35,20 +34,34 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
   }, [duration]);
 
   const handleSaveAndExit = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const { data, error } = await supabase
       .from("activities")
-      .insert([{ time: timestamp, description: activity, duration }]);
+      .insert([
+        { time: timestamp, description: activity, duration, uid: user.id },
+      ]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
       setActivityModalVisible(false);
     }
+
+    console.log("User: ", user);
   };
 
   const handleSaveAndAddAnother = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     const { data, error } = await supabase
       .from("activities")
-      .insert([{ time: timestamp, description: activity, duration }]);
+      .insert([
+        { time: timestamp, description: activity, duration, uid: user.id },
+      ]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {

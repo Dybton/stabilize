@@ -25,8 +25,6 @@ import { Modal } from "react-native";
 import AddFood from "./components/AddFood";
 import AddActivity from "./components/AddActivity";
 import AddSleep from "./components/AddSleep";
-import Reset from "./screens/auth/Reset";
-import { supabase } from "./api/supabaseClient";
 import Auth from "./screens/auth/Auth";
 import * as Linking from "expo-linking";
 import Log from "./screens/Log";
@@ -185,7 +183,10 @@ export default function App() {
           linking={linking}
           fallback={<Text>Loading...</Text>}
         >
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Navigator
+            initialRouteName='Auth'
+            screenOptions={{ headerShown: false }}
+          >
             <Stack.Screen name='Home'>
               {(props) => (
                 <TabNavigator
@@ -194,7 +195,7 @@ export default function App() {
                 />
               )}
             </Stack.Screen>
-            <Stack.Screen name='Auth' component={Reset} />
+            <Stack.Screen name='Auth' component={Auth} />
             <Stack.Screen name='Profile' component={ProfilePage} />
           </Stack.Navigator>
           <BottomSheetModal

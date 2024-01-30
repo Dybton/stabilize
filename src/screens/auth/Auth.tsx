@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { supabase } from "../../api/supabaseClient";
 import { Button, Input } from "react-native-elements";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigation = useNavigation();
 
   async function signInWithEmail() {
     setLoading(true);
@@ -16,6 +19,8 @@ export default function Auth() {
     });
 
     if (error) Alert.alert(error.message);
+    if (!error) navigation.navigate("Home");
+
     setLoading(false);
   }
 
@@ -30,8 +35,7 @@ export default function Auth() {
     });
 
     if (error) Alert.alert(error.message);
-    if (!session)
-      Alert.alert("Please check your inbox for email verification!");
+    if (!error && session) navigation.navigate("Home");
     setLoading(false);
   }
 

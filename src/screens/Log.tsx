@@ -1,5 +1,12 @@
 import React, { useEffect } from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native";
 import FoodIconBasic from "../components/Icons/FoodIconBasic";
 import ActivityIcon from "../components/Icons/ActivityIcon";
 import SleepIcon from "../components/Icons/SleepIcon";
@@ -8,11 +15,14 @@ import { formatTime } from "../utils/formatTime";
 import { parseSleepQuality } from "../utils/parseSleepQuality";
 import { formatDuration } from "../utils/formatDuration";
 import { AccountIcon } from "../components/Icons/AccountIcon";
+import { TouchableOpacity } from "react-native";
+import Profile from "../components/Profile";
 
 const Log = () => {
   const [sleepData, setSleepData] = React.useState(null);
   const [meals, setMeals] = React.useState(null);
   const [activities, setActivities] = React.useState(null);
+  const [profileModalVisible, setProfileModalVisible] = React.useState(false);
 
   const today = new Date();
   const startOfDay = new Date(
@@ -83,27 +93,54 @@ const Log = () => {
   }, []);
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={{ flexDirection: "row", width: "95%", alignSelf: "center" }}>
-        <View style={{ flex: 1 }}>{/* Dummy */}</View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.h1}>Today</Text>
-        </View>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "flex-end",
+    <>
+      {profileModalVisible && (
+        <Modal
+          animationType='none'
+          transparent={true}
+          visible={profileModalVisible}
+          onRequestClose={() => {
+            setProfileModalVisible(!profileModalVisible);
           }}
         >
-          <AccountIcon />
-        </View>
-      </View>
+          <TouchableWithoutFeedback
+            onPress={() => setProfileModalVisible(false)}
+          >
+            <View style={styles.modalView}>
+              <Profile setProfileModalVisible={setProfileModalVisible} />
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      )}
 
-      <SleepComponent sleepData={sleepData} />
-      <ActivitySection activities={activities} />
-      <MealsSection meals={meals} />
-    </ScrollView>
+      <ScrollView style={styles.container}>
+        <View
+          style={{ flexDirection: "row", width: "95%", alignSelf: "center" }}
+        >
+          <View style={{ flex: 1 }}></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.h1}>Today</Text>
+          </View>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "flex-end",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setProfileModalVisible(!profileModalVisible)}
+            >
+              <AccountIcon />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <SleepComponent sleepData={sleepData} />
+        <ActivitySection activities={activities} />
+        <MealsSection meals={meals} />
+      </ScrollView>
+    </>
   );
 };
 
@@ -329,6 +366,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "red",
     width: "50%",
+  },
+  modalView: {
+    flex: 1,
+    alignItems: "flex-end",
+    marginTop: "22%",
+    marginRight: "3%",
   },
 });
 

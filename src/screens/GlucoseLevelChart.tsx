@@ -208,7 +208,7 @@ export const GlucoseLevelChart = () => {
             y={(datum) => datum.y}
             interpolation='natural'
           />
-          {cursorValue && pressed && (
+          {cursorValue && pressed && chartData.length > 0 && (
             <VictoryScatter
               data={[findClosestPoint(chartData, cursorValue)]}
               size={5}

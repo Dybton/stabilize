@@ -35,7 +35,7 @@ const prefix = Linking.createURL("/"); // creates a prefix, ie what comes before
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const TabNavigator = ({ handlePresentModalPress }) => {
+const TabNavigator = ({ handlePresentModalPress, modalState }) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -48,14 +48,15 @@ const TabNavigator = ({ handlePresentModalPress }) => {
     >
       <Tab.Screen
         name='Graph'
-        component={GlucoseLevelChart}
         options={{
           tabBarIcon: ({ focused }) => (
             <GraphIcon color={focused ? "blue" : "grey"} />
           ),
           tabBarShowLabel: false,
         }}
-      />
+      >
+        {(props) => <GlucoseLevelChart {...props} modalState={modalState} />}
+      </Tab.Screen>
       <Tab.Screen
         name='Add'
         component={GlucoseLevelChart}
@@ -108,6 +109,15 @@ export default function App() {
   const [isSleepModalVisible, setSleepModalVisible] = useState(false);
   const bottomSheetModalRef = useRef(null);
 
+  const modalState = {
+    isAddFoodModalVisible,
+    setAddFoodModalVisible,
+    isActivityModalVisible,
+    setActivityModalVisible,
+    isSleepModalVisible,
+    setSleepModalVisible,
+  };
+
   // callbacks
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -118,63 +128,63 @@ export default function App() {
 
   const handleSheetChanges = useCallback((index) => {}, []); // add type here
 
-  if (isAddFoodModalVisible) {
-    return (
-      <Modal
-        animationType='slide'
-        transparent={true}
-        visible={isAddFoodModalVisible}
-        onRequestClose={() => {
-          setAddFoodModalVisible(!isAddFoodModalVisible);
-        }}
-      >
-        <TouchableWithoutFeedback onPress={() => setAddFoodModalVisible(false)}>
-          <View style={styles.modalView}>
-            <AddFood setAddFoodModalVisible={setAddFoodModalVisible} />
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    );
-  }
-  if (isActivityModalVisible) {
-    return (
-      <Modal
-        animationType='slide'
-        transparent={true}
-        visible={isActivityModalVisible}
-        onRequestClose={() => {
-          setActivityModalVisible(!isActivityModalVisible);
-        }}
-      >
-        <TouchableWithoutFeedback
-          onPress={() => setActivityModalVisible(false)}
-        >
-          <View style={styles.modalView}>
-            <AddActivity setActivityModalVisible={setActivityModalVisible} />
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    );
-  }
+  // if (isAddFoodModalVisible) {
+  //   return (
+  //     <Modal
+  //       animationType='slide'
+  //       transparent={true}
+  //       visible={isAddFoodModalVisible}
+  //       onRequestClose={() => {
+  //         setAddFoodModalVisible(!isAddFoodModalVisible);
+  //       }}
+  //     >
+  //       <TouchableWithoutFeedback onPress={() => setAddFoodModalVisible(false)}>
+  //         <View style={styles.modalView}>
+  //           <AddFood setAddFoodModalVisible={setAddFoodModalVisible} />
+  //         </View>
+  //       </TouchableWithoutFeedback>
+  //     </Modal>
+  //   );
+  // }
+  // if (isActivityModalVisible) {
+  //   return (
+  //     <Modal
+  //       animationType='slide'
+  //       transparent={true}
+  //       visible={isActivityModalVisible}
+  //       onRequestClose={() => {
+  //         setActivityModalVisible(!isActivityModalVisible);
+  //       }}
+  //     >
+  //       <TouchableWithoutFeedback
+  //         onPress={() => setActivityModalVisible(false)}
+  //       >
+  //         <View style={styles.modalView}>
+  //           <AddActivity setActivityModalVisible={setActivityModalVisible} />
+  //         </View>
+  //       </TouchableWithoutFeedback>
+  //     </Modal>
+  //   );
+  // }
 
-  if (isSleepModalVisible) {
-    return (
-      <Modal
-        animationType='slide'
-        transparent={true}
-        visible={isSleepModalVisible}
-        onRequestClose={() => {
-          setSleepModalVisible(!isSleepModalVisible);
-        }}
-      >
-        <TouchableWithoutFeedback onPress={() => setSleepModalVisible(false)}>
-          <View style={styles.modalView}>
-            <AddSleep setSleepModalVisible={setSleepModalVisible} />
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    );
-  }
+  // if (isSleepModalVisible) {
+  //   return (
+  //     <Modal
+  //       animationType='slide'
+  //       transparent={true}
+  //       visible={isSleepModalVisible}
+  //       onRequestClose={() => {
+  //         setSleepModalVisible(!isSleepModalVisible);
+  //       }}
+  //     >
+  //       <TouchableWithoutFeedback onPress={() => setSleepModalVisible(false)}>
+  //         <View style={styles.modalView}>
+  //           <AddSleep setSleepModalVisible={setSleepModalVisible} />
+  //         </View>
+  //       </TouchableWithoutFeedback>
+  //     </Modal>
+  //   );
+  // }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -184,12 +194,13 @@ export default function App() {
           fallback={<Text>Loading...</Text>}
         >
           <Stack.Navigator
-            initialRouteName='Auth'
+            initialRouteName='Graph'
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name='Home'>
               {(props) => (
                 <TabNavigator
+                  modalState={modalState}
                   {...props}
                   handlePresentModalPress={handlePresentModalPress}
                 />

@@ -7,7 +7,14 @@ import {
   VictoryAxis,
   VictoryGroup,
 } from "victory-native";
-import { View, Text, Button, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  TouchableOpacity,
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native";
 import * as Haptics from "expo-haptics";
 import { Dimensions } from "react-native";
 import CustomButton from "../components/CustomButton";
@@ -17,6 +24,8 @@ import glucoseData from "../../DummyData";
 import dummyGlucoseData from "../../DummyData2";
 import { getGlucoseDataForPeriod } from "../utils/getGlucoseDataForPeriod";
 import { GlucoseData, GlucoseEvent } from "../../Types";
+import timestamps from "../../DummyData";
+import ReUsableModal from "../components/ReUsableModal";
 
 const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   if (!data) return;
@@ -33,7 +42,7 @@ const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   return closestPoint;
 };
 
-export const GlucoseLevelChart = () => {
+export const GlucoseLevelChart = ({ modalState }) => {
   const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 
   // This should be done in the backend
@@ -83,7 +92,7 @@ export const GlucoseLevelChart = () => {
     [glucoseData]
   );
 
-  const [chartData, setChartData] = useState(hours12data);
+  const [chartData, setChartData] = useState(timestamps);
   const [cursorValue, setCursorValue] = useState<{
     x: number;
     y: number | undefined;
@@ -124,98 +133,103 @@ export const GlucoseLevelChart = () => {
   };
 
   return (
-    <View
-      style={{ flex: 1, marginTop: 50, width: Dimensions.get("window").width }}
-    >
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <View style={{ flex: 1 }}>
-          {/* <Text style={{ textAlign: 'center' }}>12 Hour Average</Text>
+    <>
+      <View
+        style={{
+          flex: 1,
+          marginTop: 50,
+          width: Dimensions.get("window").width,
+        }}
+      >
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <View style={{ flex: 1 }}>
+            {/* <Text style={{ textAlign: 'center' }}>12 Hour Average</Text>
             <Text style={{ textAlign: 'center' }}><Text style={{fontSize: 20}}>{averageGL.toFixed(1)}</Text> mmol/L</Text> */}
-          <Text style={{ textAlign: "center" }}>Time:</Text>
-          <Text style={{ textAlign: "center" }}>
-            {chartData === hours12data || chartData === hours24data ? (
+            <Text style={{ textAlign: "center" }}>Time:</Text>
+            <Text style={{ textAlign: "center" }}>
+              {chartData === hours12data || chartData === hours24data ? (
+                <Text style={{ fontSize: 20 }}>
+                  {cursorValue &&
+                    new Date(cursorValue.x).toLocaleTimeString("en-US", {
+                      hour12: false,
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                </Text>
+              ) : (
+                <Text style={{ fontSize: 20, position: "absolute" }}>
+                  {cursorValue &&
+                    new Date(cursorValue.x).toLocaleDateString("en-US", {
+                      hour12: false,
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                </Text>
+              )}
+            </Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ textAlign: "center" }}>Glucose level: </Text>
+            <Text style={{ textAlign: "center" }}>
               <Text style={{ fontSize: 20 }}>
-                {cursorValue &&
-                  new Date(cursorValue.x).toLocaleTimeString("en-US", {
-                    hour12: false,
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  })}
-              </Text>
-            ) : (
-              <Text style={{ fontSize: 20, position: "absolute" }}>
-                {cursorValue &&
-                  new Date(cursorValue.x).toLocaleDateString("en-US", {
-                    hour12: false,
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    month: "short",
-                    day: "numeric",
-                  })}
-              </Text>
+                {cursorValue && cursorValue.y.toFixed(1)}{" "}
+              </Text>{" "}
+              mmol/L
+            </Text>
+          </View>
+        </View>
+        <View style={{ marginTop: 30 }}>
+          <VictoryChart
+            domainPadding={{
+              y: [
+                Dimensions.get("window").height * 0.5,
+                Dimensions.get("window").height * 0.1,
+              ],
+            }}
+            width={Dimensions.get("window").width}
+            padding={{ top: 0, bottom: 30, left: 0, right: 0 }}
+            height={Dimensions.get("window").height * 0.5}
+            {...(pressed ? {} : { animate: { duration: 200 } })}
+            containerComponent={
+              <VictoryCursorContainer
+                onCursorChange={(value) => {
+                  if (value) {
+                    // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                    setCursorValue(
+                      typeof value === "number" ? { x: value, y: value } : value
+                    );
+                  }
+                }}
+                onTouchEnd={() => {
+                  setPressed(false);
+                }}
+                onTouchStart={() => {
+                  setPressed(true);
+                }}
+              />
+            }
+          >
+            <VictoryAxis
+              // style={{ axis: { stroke: "none" } }}
+              tickFormat={() => null}
+            />
+            <VictoryLine
+              data={chartData}
+              y={(datum) => datum.y}
+              interpolation='natural'
+            />
+            {cursorValue && pressed && chartData.length > 0 && (
+              <VictoryScatter
+                data={[findClosestPoint(chartData, cursorValue)]}
+                size={5}
+                style={{ data: { fill: "red" } }}
+              />
             )}
-          </Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={{ textAlign: "center" }}>Glucose level: </Text>
-          <Text style={{ textAlign: "center" }}>
-            <Text style={{ fontSize: 20 }}>
-              {cursorValue && cursorValue.y.toFixed(1)}{" "}
-            </Text>{" "}
-            mmol/L
-          </Text>
-        </View>
-      </View>
-      <View style={{ marginTop: 30 }}>
-        <VictoryChart
-          domainPadding={{
-            y: [
-              Dimensions.get("window").height * 0.5,
-              Dimensions.get("window").height * 0.1,
-            ],
-          }}
-          width={Dimensions.get("window").width}
-          padding={{ top: 0, bottom: 30, left: 0, right: 0 }}
-          height={Dimensions.get("window").height * 0.5}
-          {...(pressed ? {} : { animate: { duration: 200 } })}
-          containerComponent={
-            <VictoryCursorContainer
-              onCursorChange={(value) => {
-                if (value) {
-                  // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                  setCursorValue(
-                    typeof value === "number" ? { x: value, y: value } : value
-                  );
-                }
-              }}
-              onTouchEnd={() => {
-                setPressed(false);
-              }}
-              onTouchStart={() => {
-                setPressed(true);
-              }}
-            />
-          }
-        >
-          <VictoryAxis
-            // style={{ axis: { stroke: "none" } }}
-            tickFormat={() => null}
-          />
-          <VictoryLine
-            data={chartData}
-            y={(datum) => datum.y}
-            interpolation='natural'
-          />
-          {cursorValue && pressed && chartData.length > 0 && (
-            <VictoryScatter
-              data={[findClosestPoint(chartData, cursorValue)]}
-              size={5}
-              style={{ data: { fill: "red" } }}
-            />
-          )}
-          {/* {events1.map((event, index) => {
+            {/* {events1.map((event, index) => {
             const highlightEvent = (cursorValue && cursorValue.x >= event.x - 0.5 && cursorValue.x <= event.x + 0.5)
             
             useEffect(() => {
@@ -232,63 +246,65 @@ export const GlucoseLevelChart = () => {
               />
             </VictoryGroup>
         )})} */}
-        </VictoryChart>
-      </View>
+          </VictoryChart>
+        </View>
 
-      <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-        <CustomButton
-          data={hours12data}
-          handleClick={changeData}
-          text={"12H"}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-        />
-        <CustomButton
-          data={hours24data}
-          handleClick={changeData}
-          text={"24H"}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-        />
-        <CustomButton
-          data={days3data}
-          handleClick={changeData}
-          text={"3D"}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-        />
-        <CustomButton
-          data={days7data}
-          handleClick={changeData}
-          text={"7D"}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-        />
-        <CustomButton
-          data={days14data}
-          handleClick={changeData}
-          text={"14D"}
-          timeframe={timeframe}
-          setTimeframe={setTimeframe}
-        />
-      </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+          <CustomButton
+            data={hours12data}
+            handleClick={changeData}
+            text={"12H"}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+          />
+          <CustomButton
+            data={hours24data}
+            handleClick={changeData}
+            text={"24H"}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+          />
+          <CustomButton
+            data={days3data}
+            handleClick={changeData}
+            text={"3D"}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+          />
+          <CustomButton
+            data={days7data}
+            handleClick={changeData}
+            text={"7D"}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+          />
+          <CustomButton
+            data={days14data}
+            handleClick={changeData}
+            text={"14D"}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+          />
+        </View>
 
-      <View style={styles.container}>
-        {/* ... (rest of your views) */}
+        <View style={styles.container}>
+          {/* ... (rest of your views) */}
 
-        {selectedEvent !== null && (
-          <TouchableOpacity
-            style={styles.eventButton}
-            onPress={() => console.log(`Go Event ${selectedEvent} pressed`)}
-            activeOpacity={0.7}
-          >
-            <Text
-              style={styles.eventButtonText}
-            >{`Go to Event ${selectedEvent}`}</Text>
-          </TouchableOpacity>
-        )}
+          {selectedEvent !== null && (
+            <TouchableOpacity
+              style={styles.eventButton}
+              onPress={() => console.log(`Go Event ${selectedEvent} pressed`)}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={styles.eventButtonText}
+              >{`Go to Event ${selectedEvent}`}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </View>
+      <ReUsableModal modalState={modalState} />
+    </>
   );
 };
 

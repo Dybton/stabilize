@@ -17,8 +17,9 @@ import { formatDuration } from "../utils/formatDuration";
 import { AccountIcon } from "../components/Icons/AccountIcon";
 import { TouchableOpacity } from "react-native";
 import Profile from "../components/Profile";
+import ReUsableModal from "../components/ReUsableModal";
 
-const Log = () => {
+const Log = ({ modalState }) => {
   const [sleepData, setSleepData] = React.useState(null);
   const [meals, setMeals] = React.useState(null);
   const [activities, setActivities] = React.useState(null);
@@ -140,6 +141,7 @@ const Log = () => {
         <ActivitySection activities={activities} />
         <MealsSection meals={meals} />
       </ScrollView>
+      <ReUsableModal modalState={modalState} />
     </>
   );
 };

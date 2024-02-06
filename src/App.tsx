@@ -79,16 +79,18 @@ const TabNavigator = ({ handlePresentModalPress, modalState }) => {
           },
         }}
       />
+
       <Tab.Screen
         name='Log'
-        component={Log}
         options={{
           tabBarIcon: ({ focused }) => (
             <BookIcon color={focused ? "blue" : "grey"} />
           ),
           tabBarShowLabel: false,
         }}
-      />
+      >
+        {(props) => <Log {...props} modalState={modalState} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

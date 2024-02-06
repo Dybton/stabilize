@@ -3,7 +3,7 @@ import AddFood from "./AddFood";
 import { StyleSheet } from "react-native";
 import AddActivity from "./AddActivity";
 import AddSleep from "./AddSleep";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 type ModalState = {
   isAddFoodModalVisible: boolean;
@@ -27,6 +27,22 @@ const ReUsableModal = ({ modalState }: ReUsableModalProps) => {
     isSleepModalVisible,
     setSleepModalVisible,
   } = modalState;
+
+  useEffect(() => {
+    console.log("isAddFoodModalVisible: ", isAddFoodModalVisible);
+    if (isAddFoodModalVisible) {
+      setActivityModalVisible(false);
+      setSleepModalVisible(false);
+    }
+    if (isActivityModalVisible) {
+      setAddFoodModalVisible(false);
+      setSleepModalVisible(false);
+    }
+    if (isSleepModalVisible) {
+      setAddFoodModalVisible(false);
+      setActivityModalVisible(false);
+    }
+  }, [isAddFoodModalVisible, isActivityModalVisible, isSleepModalVisible]);
 
   const state =
     isAddFoodModalVisible || isActivityModalVisible || isSleepModalVisible;

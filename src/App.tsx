@@ -128,64 +128,6 @@ export default function App() {
 
   const handleSheetChanges = useCallback((index) => {}, []); // add type here
 
-  // if (isAddFoodModalVisible) {
-  //   return (
-  //     <Modal
-  //       animationType='slide'
-  //       transparent={true}
-  //       visible={isAddFoodModalVisible}
-  //       onRequestClose={() => {
-  //         setAddFoodModalVisible(!isAddFoodModalVisible);
-  //       }}
-  //     >
-  //       <TouchableWithoutFeedback onPress={() => setAddFoodModalVisible(false)}>
-  //         <View style={styles.modalView}>
-  //           <AddFood setAddFoodModalVisible={setAddFoodModalVisible} />
-  //         </View>
-  //       </TouchableWithoutFeedback>
-  //     </Modal>
-  //   );
-  // }
-  // if (isActivityModalVisible) {
-  //   return (
-  //     <Modal
-  //       animationType='slide'
-  //       transparent={true}
-  //       visible={isActivityModalVisible}
-  //       onRequestClose={() => {
-  //         setActivityModalVisible(!isActivityModalVisible);
-  //       }}
-  //     >
-  //       <TouchableWithoutFeedback
-  //         onPress={() => setActivityModalVisible(false)}
-  //       >
-  //         <View style={styles.modalView}>
-  //           <AddActivity setActivityModalVisible={setActivityModalVisible} />
-  //         </View>
-  //       </TouchableWithoutFeedback>
-  //     </Modal>
-  //   );
-  // }
-
-  // if (isSleepModalVisible) {
-  //   return (
-  //     <Modal
-  //       animationType='slide'
-  //       transparent={true}
-  //       visible={isSleepModalVisible}
-  //       onRequestClose={() => {
-  //         setSleepModalVisible(!isSleepModalVisible);
-  //       }}
-  //     >
-  //       <TouchableWithoutFeedback onPress={() => setSleepModalVisible(false)}>
-  //         <View style={styles.modalView}>
-  //           <AddSleep setSleepModalVisible={setSleepModalVisible} />
-  //         </View>
-  //       </TouchableWithoutFeedback>
-  //     </Modal>
-  //   );
-  // }
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>

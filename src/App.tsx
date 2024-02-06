@@ -158,12 +158,16 @@ export default function App() {
             index={1}
             snapPoints={snapPoints}
             onChange={handleSheetChanges}
+            enableContentPanningGesture={true}
           >
             <View style={styles2.contentContainer}>
               <View style={styles2.roundButtonContainer}>
                 <TouchableOpacity
                   style={styles2.roundButton}
-                  onPress={() => setSleepModalVisible(true)}
+                  onPress={() => {
+                    bottomSheetModalRef.current?.dismiss();
+                    setSleepModalVisible(true);
+                  }}
                 ></TouchableOpacity>
                 <Text style={{ marginTop: 10 }}>Sleep</Text>
               </View>
@@ -171,7 +175,10 @@ export default function App() {
               <View style={styles2.roundButtonContainer}>
                 <TouchableOpacity
                   style={styles2.roundButton}
-                  onPress={() => setAddFoodModalVisible(true)}
+                  onPress={() => {
+                    bottomSheetModalRef.current?.dismiss();
+                    setAddFoodModalVisible(true);
+                  }}
                 ></TouchableOpacity>
                 <Text style={{ marginTop: 10 }}>Diet</Text>
               </View>
@@ -179,7 +186,10 @@ export default function App() {
               <View style={styles2.roundButtonContainer}>
                 <TouchableOpacity
                   style={styles2.roundButton}
-                  onPress={() => setActivityModalVisible(true)}
+                  onPress={() => {
+                    bottomSheetModalRef.current?.dismiss();
+                    setActivityModalVisible(true);
+                  }}
                 ></TouchableOpacity>
                 <Text style={{ marginTop: 10 }}>Activity</Text>
               </View>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -18,8 +18,17 @@ import { AccountIcon } from "../components/Icons/AccountIcon";
 import { TouchableOpacity } from "react-native";
 import Profile from "../components/Profile";
 import ReUsableModal from "../components/ReUsableModal";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Log = ({ modalState }) => {
+  const { isLogged, logIn, logOut } = useContext(AuthContext);
+
+  useEffect(() => {
+    logIn();
+  }, []);
+
+  console.log("isLogged: ", isLogged);
+
   const [sleepData, setSleepData] = React.useState(null);
   const [meals, setMeals] = React.useState(null);
   const [activities, setActivities] = React.useState(null);

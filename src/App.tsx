@@ -29,11 +29,128 @@ import Auth from "./screens/auth/Auth";
 import * as Linking from "expo-linking";
 import Log from "./screens/Log";
 import { ProfilePage } from "./screens/ProfilePage";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const prefix = Linking.createURL("/"); // creates a prefix, ie what comes before the path
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+export default function App() {
+  const linking = {
+    prefixes: [prefix],
+
+    config: {
+      screens: {
+        Auth: "auth",
+      },
+    },
+  };
+
+  const [isAddFoodModalVisible, setAddFoodModalVisible] = useState(false);
+  const [isActivityModalVisible, setActivityModalVisible] = useState(false);
+  const [isSleepModalVisible, setSleepModalVisible] = useState(false);
+  const bottomSheetModalRef = useRef(null);
+
+  const modalState = {
+    isAddFoodModalVisible,
+    setAddFoodModalVisible,
+    isActivityModalVisible,
+    setActivityModalVisible,
+    isSleepModalVisible,
+    setSleepModalVisible,
+  };
+
+  // callbacks
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  // variables
+  const snapPoints = useMemo(() => ["25%", "50%"], []);
+
+  const handleSheetChanges = useCallback((index) => {}, []); // add type here
+
+  return (
+    <AuthProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <BottomSheetModalProvider>
+          <NavigationContainer
+            linking={linking}
+            fallback={<Text>Loading...</Text>}
+          >
+            <Stack.Navigator
+              initialRouteName='Graph'
+              screenOptions={{ headerShown: false }}
+            >
+              <Stack.Screen name='Home'>
+                {(props) => (
+                  <TabNavigator
+                    modalState={modalState}
+                    {...props}
+                    handlePresentModalPress={handlePresentModalPress}
+                  />
+                )}
+              </Stack.Screen>
+              <Stack.Screen name='Auth' component={Auth} />
+              <Stack.Screen name='Profile' component={ProfilePage} />
+            </Stack.Navigator>
+            <BottomSheetModal
+              ref={bottomSheetModalRef}
+              index={1}
+              snapPoints={snapPoints}
+              onChange={handleSheetChanges}
+              enableContentPanningGesture={true}
+            >
+              <View style={styles2.contentContainer}>
+                <View style={styles2.roundButtonContainer}>
+                  <TouchableOpacity
+                    style={styles2.roundButton}
+                    onPress={() => {
+                      bottomSheetModalRef.current?.dismiss();
+                      setSleepModalVisible(true);
+                    }}
+                  ></TouchableOpacity>
+                  <Text style={{ marginTop: 10 }}>Sleep</Text>
+                </View>
+
+                <View style={styles2.roundButtonContainer}>
+                  <TouchableOpacity
+                    style={styles2.roundButton}
+                    onPress={() => {
+                      bottomSheetModalRef.current?.dismiss();
+                      setAddFoodModalVisible(true);
+                    }}
+                  ></TouchableOpacity>
+                  <Text style={{ marginTop: 10 }}>Diet</Text>
+                </View>
+
+                <View style={styles2.roundButtonContainer}>
+                  <TouchableOpacity
+                    style={styles2.roundButton}
+                    onPress={() => {
+                      bottomSheetModalRef.current?.dismiss();
+                      setActivityModalVisible(true);
+                    }}
+                  ></TouchableOpacity>
+                  <Text style={{ marginTop: 10 }}>Activity</Text>
+                </View>
+              </View>
+              <View style={{ flex: 1, justifyContent: "flex-end" }}>
+                <TouchableOpacity
+                  style={styles2.closeButton}
+                  onPress={() => bottomSheetModalRef.current?.dismiss()}
+                >
+                  <Text>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </BottomSheetModal>
+          </NavigationContainer>
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
+    </AuthProvider>
+  );
+}
 
 const TabNavigator = ({ handlePresentModalPress, modalState }) => {
   return (
@@ -94,120 +211,6 @@ const TabNavigator = ({ handlePresentModalPress, modalState }) => {
     </Tab.Navigator>
   );
 };
-
-export default function App() {
-  const linking = {
-    prefixes: [prefix],
-
-    config: {
-      screens: {
-        Auth: "auth",
-      },
-    },
-  };
-
-  const [isAddFoodModalVisible, setAddFoodModalVisible] = useState(false);
-  const [isActivityModalVisible, setActivityModalVisible] = useState(false);
-  const [isSleepModalVisible, setSleepModalVisible] = useState(false);
-  const bottomSheetModalRef = useRef(null);
-
-  const modalState = {
-    isAddFoodModalVisible,
-    setAddFoodModalVisible,
-    isActivityModalVisible,
-    setActivityModalVisible,
-    isSleepModalVisible,
-    setSleepModalVisible,
-  };
-
-  // callbacks
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
-
-  // variables
-  const snapPoints = useMemo(() => ["25%", "50%"], []);
-
-  const handleSheetChanges = useCallback((index) => {}, []); // add type here
-
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <BottomSheetModalProvider>
-        <NavigationContainer
-          linking={linking}
-          fallback={<Text>Loading...</Text>}
-        >
-          <Stack.Navigator
-            initialRouteName='Graph'
-            screenOptions={{ headerShown: false }}
-          >
-            <Stack.Screen name='Home'>
-              {(props) => (
-                <TabNavigator
-                  modalState={modalState}
-                  {...props}
-                  handlePresentModalPress={handlePresentModalPress}
-                />
-              )}
-            </Stack.Screen>
-            <Stack.Screen name='Auth' component={Auth} />
-            <Stack.Screen name='Profile' component={ProfilePage} />
-          </Stack.Navigator>
-          <BottomSheetModal
-            ref={bottomSheetModalRef}
-            index={1}
-            snapPoints={snapPoints}
-            onChange={handleSheetChanges}
-            enableContentPanningGesture={true}
-          >
-            <View style={styles2.contentContainer}>
-              <View style={styles2.roundButtonContainer}>
-                <TouchableOpacity
-                  style={styles2.roundButton}
-                  onPress={() => {
-                    bottomSheetModalRef.current?.dismiss();
-                    setSleepModalVisible(true);
-                  }}
-                ></TouchableOpacity>
-                <Text style={{ marginTop: 10 }}>Sleep</Text>
-              </View>
-
-              <View style={styles2.roundButtonContainer}>
-                <TouchableOpacity
-                  style={styles2.roundButton}
-                  onPress={() => {
-                    bottomSheetModalRef.current?.dismiss();
-                    setAddFoodModalVisible(true);
-                  }}
-                ></TouchableOpacity>
-                <Text style={{ marginTop: 10 }}>Diet</Text>
-              </View>
-
-              <View style={styles2.roundButtonContainer}>
-                <TouchableOpacity
-                  style={styles2.roundButton}
-                  onPress={() => {
-                    bottomSheetModalRef.current?.dismiss();
-                    setActivityModalVisible(true);
-                  }}
-                ></TouchableOpacity>
-                <Text style={{ marginTop: 10 }}>Activity</Text>
-              </View>
-            </View>
-            <View style={{ flex: 1, justifyContent: "flex-end" }}>
-              <TouchableOpacity
-                style={styles2.closeButton}
-                onPress={() => bottomSheetModalRef.current?.dismiss()}
-              >
-                <Text>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </BottomSheetModal>
-        </NavigationContainer>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
-  );
-}
 
 const styles2 = StyleSheet.create({
   // ... other styles

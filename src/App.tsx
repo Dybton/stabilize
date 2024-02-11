@@ -1,40 +1,20 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
-import { Testo } from "./components/Testo";
-import { GlucoseLevelChart } from "./screens/GlucoseLevelChart";
+import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { GraphIcon } from "./components/Icons/GraphIcon";
-import { AddIcon } from "./components/Icons/AddIcon";
-import { BookIcon } from "./components/Icons/BookIcon";
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  useEffect,
-} from "react";
+
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Modal } from "react-native";
-import AddFood from "./components/AddFood";
-import AddActivity from "./components/AddActivity";
-import AddSleep from "./components/AddSleep";
-import Auth from "./screens/auth/Auth";
 import * as Linking from "expo-linking";
-import Log from "./screens/Log";
-import { ProfilePage } from "./screens/ProfilePage";
 import { AuthProvider } from "./contexts/AuthContext";
+import { StackNavigator } from "./navigation/StackNavigator";
 
-const prefix = Linking.createURL("/"); // creates a prefix, ie what comes before the path
-
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const prefix = Linking.createURL("/");
 
 export default function App() {
   const linking = {
@@ -79,22 +59,10 @@ export default function App() {
             linking={linking}
             fallback={<Text>Loading...</Text>}
           >
-            <Stack.Navigator
-              initialRouteName='Graph'
-              screenOptions={{ headerShown: false }}
-            >
-              <Stack.Screen name='Home'>
-                {(props) => (
-                  <TabNavigator
-                    modalState={modalState}
-                    {...props}
-                    handlePresentModalPress={handlePresentModalPress}
-                  />
-                )}
-              </Stack.Screen>
-              <Stack.Screen name='Auth' component={Auth} />
-              <Stack.Screen name='Profile' component={ProfilePage} />
-            </Stack.Navigator>
+            <StackNavigator
+              handlePresentModalPress={handlePresentModalPress}
+              modalState={modalState}
+            />
             <BottomSheetModal
               ref={bottomSheetModalRef}
               index={1}
@@ -151,66 +119,6 @@ export default function App() {
     </AuthProvider>
   );
 }
-
-const TabNavigator = ({ handlePresentModalPress, modalState }) => {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarIcon: () => null, // This line removes the icon
-        headerShown: false,
-        tabBarStyle: {
-          height: 60, // Set your desired height here
-        },
-      }}
-    >
-      <Tab.Screen
-        name='Graph'
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <GraphIcon color={focused ? "blue" : "grey"} />
-          ),
-          tabBarShowLabel: false,
-        }}
-      >
-        {(props) => <GlucoseLevelChart {...props} modalState={modalState} />}
-      </Tab.Screen>
-      <Tab.Screen
-        name='Add'
-        component={GlucoseLevelChart}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TouchableOpacity onPress={handlePresentModalPress}>
-              <View style={{ marginBottom: 14 }}>
-                <AddIcon color={focused ? "blue" : "grey"} />
-              </View>
-            </TouchableOpacity>
-          ),
-          tabBarShowLabel: false,
-        }}
-        listeners={{
-          tabPress: (e) => {
-            // Prevent the default action (navigation)
-            e.preventDefault();
-            // Call your function
-            handlePresentModalPress();
-          },
-        }}
-      />
-
-      <Tab.Screen
-        name='Log'
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <BookIcon color={focused ? "blue" : "grey"} />
-          ),
-          tabBarShowLabel: false,
-        }}
-      >
-        {(props) => <Log {...props} modalState={modalState} />}
-      </Tab.Screen>
-    </Tab.Navigator>
-  );
-};
 
 const styles2 = StyleSheet.create({
   // ... other styles

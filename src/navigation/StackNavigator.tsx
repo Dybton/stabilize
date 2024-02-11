@@ -1,8 +1,9 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import React from "react";
+import React, { useContext } from "react";
 import { TabNavigator } from "./TabNavigator";
 import { ProfilePage } from "../screens/ProfilePage";
 import Auth from "../screens/auth/Auth";
+import { AuthContext } from "../contexts/AuthContext";
 
 export type NavigatorProps = {
   modalState: {
@@ -20,11 +21,12 @@ export const StackNavigator = ({
   modalState,
   handlePresentModalPress,
 }: NavigatorProps) => {
+  const { session } = useContext(AuthContext);
   const Stack = createStackNavigator();
 
   return (
     <Stack.Navigator
-      initialRouteName='Graph'
+      initialRouteName={session ? "Graph" : "Auth"}
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name='Home'>

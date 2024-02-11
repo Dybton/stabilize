@@ -21,8 +21,6 @@ import ReUsableModal from "../components/ReUsableModal";
 import { AuthContext } from "../contexts/AuthContext";
 
 const Log = ({ modalState }) => {
-  const { isLoggedin, user } = useContext(AuthContext);
-
   const [sleepData, setSleepData] = React.useState(null);
   const [meals, setMeals] = React.useState(null);
   const [activities, setActivities] = React.useState(null);

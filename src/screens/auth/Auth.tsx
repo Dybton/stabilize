@@ -20,7 +20,6 @@ export default function Auth() {
 
     if (error) Alert.alert(error.message);
     if (!error) navigation.navigate("Home");
-
     setLoading(false);
   }
 

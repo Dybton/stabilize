@@ -7,13 +7,11 @@ type userData = {
 };
 
 type AuthContextType = {
-  isLoggedin: boolean;
-  user: any; // we should probably
+  userSession: userData;
 };
 
 const defaultState: AuthContextType = {
-  isLoggedin: false,
-  user: null,
+  userSession: null,
 };
 
 export const AuthContext = createContext(defaultState);
@@ -23,36 +21,46 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isLoggedin, setIsLoggedin] = useState(false);
-  const [user, setUser] = useState<userData | null>(null);
+  const [userSession, setUserSession] = useState<userData | null>(null);
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const formatSession = (session: any) => {
+    return {
+      email: session.user.email,
+      id: session.user.id,
+    };
+  };
 
   useEffect(() => {
-    console.log("Checking if user is logged in");
-    const checkUser = async () => {
+    const getSession = async () => {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      console.log("User: ", user);
-      if (!user.id) {
-        console.log("No user found");
-        return;
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        const formattedSession = formatSession(session);
+        setUserSession(formattedSession);
       }
-      const formattedUser = {
-        email: user.email,
-        id: user.id,
-      };
-      setIsLoggedin(true);
-      setUser(formattedUser);
     };
-    checkUser();
+
+    getSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        const formattedSession = formatSession(session);
+
+        setUserSession(formattedSession);
+      } else {
+        setUserSession(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedin, user }}>
+    <AuthContext.Provider value={{ userSession }}>
       {children}
     </AuthContext.Provider>
   );

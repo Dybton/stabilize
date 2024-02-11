@@ -1,15 +1,19 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { supabase } from "../api/supabaseClient";
+
+type userData = {
+  email: string;
+  id: string;
+};
 
 type AuthContextType = {
-  isLogged: boolean;
-  logIn: () => void;
-  logOut: () => void;
+  isLoggedin: boolean;
+  user: any; // we should probably
 };
 
 const defaultState: AuthContextType = {
-  isLogged: false,
-  logIn: () => {},
-  logOut: () => {},
+  isLoggedin: false,
+  user: null,
 };
 
 export const AuthContext = createContext(defaultState);
@@ -19,20 +23,36 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isLogged, setIsLogged] = useState(false);
+  const [isLoggedin, setIsLoggedin] = useState(false);
+  const [user, setUser] = useState<userData | null>(null);
 
-  const logIn = () => {
-    console.log("logging in");
-    setIsLogged(true);
-  };
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  const logOut = () => {
-    // needs to call supabase
-    setIsLogged(false);
-  };
+  useEffect(() => {
+    console.log("Checking if user is logged in");
+    const checkUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      console.log("User: ", user);
+      if (!user.id) {
+        console.log("No user found");
+        return;
+      }
+      const formattedUser = {
+        email: user.email,
+        id: user.id,
+      };
+      setIsLoggedin(true);
+      setUser(formattedUser);
+    };
+    checkUser();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ isLogged, logIn, logOut }}>
+    <AuthContext.Provider value={{ isLoggedin, user }}>
       {children}
     </AuthContext.Provider>
   );

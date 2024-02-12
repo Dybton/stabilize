@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { supabase } from "../api/supabaseClient";
 import { yesterdayTimeStamp } from "../utils/yesterdayTimeStamp";
 import { parseSleepQuality } from "../utils/parseSleepQuality";
 import { formatDuration } from "../utils/formatDuration";
+import { AuthContext } from "../contexts/AuthContext";
 
 type AddSleepProps = {
   setSleepModalVisible: (val: boolean) => void;
@@ -26,21 +27,22 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
   const [duration, setDuration] = useState(0);
   const [sleepQuality, setSleepQuality] = useState(0);
 
+  const { userSession } = useContext(AuthContext);
+
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
     setTimestamp(currentDate);
   };
 
   const handleSaveAndExit = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const { data, error } = await supabase
-      .from("sleep")
-      .insert([
-        { time: timestamp, duration, quality: sleepQuality, uid: user.id },
-      ]);
+    const { data, error } = await supabase.from("sleep").insert([
+      {
+        time: timestamp,
+        duration,
+        quality: sleepQuality,
+        uid: userSession.id,
+      },
+    ]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
@@ -49,15 +51,14 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
   };
 
   const handleSaveAndAddAnother = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const { data, error } = await supabase
-      .from("sleep")
-      .insert([
-        { time: timestamp, duration, quality: sleepQuality, uid: user.id },
-      ]);
+    const { data, error } = await supabase.from("sleep").insert([
+      {
+        time: timestamp,
+        duration,
+        quality: sleepQuality,
+        uid: userSession.id,
+      },
+    ]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {

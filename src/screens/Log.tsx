@@ -26,6 +26,8 @@ const Log = ({ modalState }) => {
   const [activities, setActivities] = React.useState(null);
   const [profileModalVisible, setProfileModalVisible] = React.useState(false);
 
+  const { userSession } = useContext(AuthContext);
+
   const today = new Date();
   const startOfDay = new Date(
     today.getFullYear(),
@@ -46,7 +48,8 @@ const Log = ({ modalState }) => {
         .from("sleep")
         .select("*")
         .gte("time", cufoffStart)
-        .lte("time", cutOffEnd);
+        .lte("time", cutOffEnd)
+        .match({ uid: userSession.id });
 
       console.log("Sleep data: ", data);
       if (error || !data) {
@@ -63,7 +66,8 @@ const Log = ({ modalState }) => {
         .from("meals")
         .select("*")
         .gte("time", startOfDay)
-        .lte("time", new Date());
+        .lte("time", new Date())
+        .match({ uid: userSession.id });
 
       console.log("Meal data: ", data);
       if (error || !data) {
@@ -79,7 +83,8 @@ const Log = ({ modalState }) => {
         .from("activities")
         .select("*")
         .gte("time", startOfDay)
-        .lte("time", new Date());
+        .lte("time", new Date())
+        .match({ uid: userSession.id });
       console.log("Activity data: ", data);
       if (error || !data) {
         console.log("Error fetching meal data: ", error);

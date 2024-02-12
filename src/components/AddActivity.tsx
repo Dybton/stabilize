@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 
 import { supabase } from "../api/supabaseClient";
+import { AuthContext } from "../contexts/AuthContext";
 
 type AddActivityProps = {
   setActivityModalVisible: (val: boolean) => void;
@@ -24,6 +25,8 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
   const [duration, setDuration] = useState(0);
   const [sliderValue, setSliderValue] = useState(0);
 
+  const { userSession } = useContext(AuthContext);
+
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
     setTimestamp(currentDate);
@@ -34,34 +37,30 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
   }, [duration]);
 
   const handleSaveAndExit = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const { data, error } = await supabase
-      .from("activities")
-      .insert([
-        { time: timestamp, description: activity, duration, uid: user.id },
-      ]);
+    const { data, error } = await supabase.from("activities").insert([
+      {
+        time: timestamp,
+        description: activity,
+        duration,
+        uid: userSession.id,
+      },
+    ]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
       setActivityModalVisible(false);
     }
-
-    console.log("User: ", user);
   };
 
   const handleSaveAndAddAnother = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const { data, error } = await supabase
-      .from("activities")
-      .insert([
-        { time: timestamp, description: activity, duration, uid: user.id },
-      ]);
+    const { data, error } = await supabase.from("activities").insert([
+      {
+        time: timestamp,
+        description: activity,
+        duration,
+        uid: userSession.id,
+      },
+    ]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {

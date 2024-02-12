@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { supabase } from "../api/supabaseClient";
+import { AuthContext } from "../contexts/AuthContext";
 
 type AddFoodProps = {
   setAddFoodModalVisible: (val: boolean) => void;
@@ -20,19 +21,17 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   const [meal, setMeal] = useState("");
   const [timestamp, setTimestamp] = useState(new Date());
 
+  const { userSession } = useContext(AuthContext);
+
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
     setTimestamp(currentDate);
   };
 
   const handleSaveAndExit = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
     const { data, error } = await supabase
       .from("meals")
-      .insert([{ time: timestamp, description: meal, uid: user.id }]);
+      .insert([{ time: timestamp, description: meal, uid: userSession.id }]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
@@ -41,13 +40,9 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   };
 
   const handleSaveAndAddAnother = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
     const { data, error } = await supabase
       .from("meals")
-      .insert([{ time: timestamp, description: meal, uid: user.id }]);
+      .insert([{ time: timestamp, description: meal, uid: userSession.id }]);
     if (error) {
       console.log("Error saving meal: ", error);
     } else {

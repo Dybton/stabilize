@@ -7,14 +7,7 @@ import {
   VictoryAxis,
   VictoryGroup,
 } from "victory-native";
-import {
-  View,
-  Text,
-  Button,
-  TouchableOpacity,
-  Modal,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { View, Text, Button, TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Dimensions } from "react-native";
 import CustomButton from "../components/CustomButton";
@@ -42,6 +35,8 @@ const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   return closestPoint;
 };
 
+const events1 = [{ x: 1707700848713, y: 9.5 }];
+
 export const GlucoseLevelChart = ({ modalState }) => {
   const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 
@@ -55,6 +50,9 @@ export const GlucoseLevelChart = ({ modalState }) => {
       ),
     [glucoseData]
   );
+
+  console.log("hours12data", hours12data);
+
   const hours24data: GlucoseData = useMemo(
     () =>
       getGlucoseDataForPeriod(
@@ -110,11 +108,9 @@ export const GlucoseLevelChart = ({ modalState }) => {
     }
   }, [cursorValue, chartData]);
 
-  // useEffect(() => {
-  //   if(chartData){
-  //     setAverageGL(calculateAverageGL(chartData))
-  // }
-  // },[chartData])
+  useEffect(() => {
+    console.log("chartData", chartData);
+  }, [chartData]);
 
   const calculateAverageGL = (data: GlucoseData) => {
     if (!chartData) return;
@@ -229,23 +225,32 @@ export const GlucoseLevelChart = ({ modalState }) => {
                 style={{ data: { fill: "red" } }}
               />
             )}
-            {/* {events1.map((event, index) => {
-            const highlightEvent = (cursorValue && cursorValue.x >= event.x - 0.5 && cursorValue.x <= event.x + 0.5)
-            
-            useEffect(() => {
-              if(highlightEvent)
-                setSelectedEvent(index);
-                // Haptic feedback
-          }, [highlightEvent]);
+            {events1.map((event, index) => {
+              const highlightEvent =
+                cursorValue &&
+                cursorValue.x >= event.x - 0.5 &&
+                cursorValue.x <= event.x + 0.5;
 
-            return ( 
-            <VictoryGroup animate={false} key={index}>
-                <VictoryScatter
-                  data={[event]}
-                  dataComponent={<FoodIcon highlightEvent={highlightEvent}/>}
-              />
-            </VictoryGroup>
-        )})} */}
+              // useEffect(() => {
+              //   if (highlightEvent) setSelectedEvent(index);
+              //   // Haptic feedback
+              // }, [highlightEvent]);
+
+              return (
+                <VictoryGroup animate={false} key={index}>
+                  <VictoryScatter
+                    data={[event]}
+                    dataComponent={
+                      <FoodIcon
+                        highlightEvent={highlightEvent}
+                        x={undefined}
+                        y={undefined}
+                      />
+                    }
+                  />
+                </VictoryGroup>
+              );
+            })}
           </VictoryChart>
         </View>
 

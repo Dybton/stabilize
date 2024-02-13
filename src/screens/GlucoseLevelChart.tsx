@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   VictoryLine,
   VictoryChart,
@@ -19,6 +19,8 @@ import { getGlucoseDataForPeriod } from "../utils/getGlucoseDataForPeriod";
 import { GlucoseData, GlucoseEvent } from "../../Types";
 import timestamps from "../../DummyData";
 import ReUsableModal from "../components/ReUsableModal";
+import { supabase } from "../api/supabaseClient";
+import { AuthContext } from "../contexts/AuthContext";
 
 const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   if (!data) return;
@@ -35,10 +37,74 @@ const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   return closestPoint;
 };
 
-const events1 = [{ x: 1707700848713, y: 9.5 }];
+// also, we only need to show the event if it's within the timeframe
+// we need to get the highlighting to work
 
 export const GlucoseLevelChart = ({ modalState }) => {
+  const [events, setEvents] = useState([]);
   const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+  const { userSession } = useContext(AuthContext);
+
+  const today = new Date();
+  const startOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const fetchMealEvents = async () => {
+    const { data, error } = await supabase
+      .from("meals")
+      .select("*")
+      .gte("time", startOfDay)
+      .lte("time", new Date())
+      .match({ uid: userSession.id });
+
+    return data;
+  };
+
+  const fetchActivityData = async () => {
+    const { data, error } = await supabase
+      .from("activities")
+      .select("*")
+      .gte("time", startOfDay)
+      .lte("time", new Date())
+      .match({ uid: userSession.id });
+
+    return data;
+  };
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const mealEvents = await fetchMealEvents();
+      const activityEvents = await fetchActivityData();
+
+      const formattedMealEvents = mealEvents.map((event) => {
+        const time = new Date(event.time).getTime();
+
+        return {
+          x: time,
+          y: findClosestPoint(chartData, { x: time, y: undefined }).y,
+          description: event.description,
+          type: "meal",
+        };
+      });
+
+      const formattedActivityEvents = activityEvents.map((event) => {
+        const time = new Date(event.time).getTime();
+        return {
+          x: time,
+          y: findClosestPoint(chartData, { x: time, y: undefined }).y,
+          description: event.description,
+          type: "activity",
+        };
+      });
+
+      setEvents([...formattedMealEvents, ...formattedActivityEvents]);
+    };
+
+    fetchEvents();
+  }, []);
 
   // This should be done in the backend
   const hours12data: GlucoseData = useMemo(
@@ -107,10 +173,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
         setCursorValue({ x: val ?? 0, y: chartData[chartData.length - 1].y });
     }
   }, [cursorValue, chartData]);
-
-  useEffect(() => {
-    console.log("chartData", chartData);
-  }, [chartData]);
 
   const calculateAverageGL = (data: GlucoseData) => {
     if (!chartData) return;
@@ -225,7 +287,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
                 style={{ data: { fill: "red" } }}
               />
             )}
-            {events1.map((event, index) => {
+            {events.map((event, index) => {
               const highlightEvent =
                 cursorValue &&
                 cursorValue.x >= event.x - 0.5 &&

@@ -1,13 +1,13 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { supabase } from "../api/supabaseClient";
 
-type userData = {
+export type UserData = {
   email: string;
   id: string;
 };
 
 type AuthContextType = {
-  userSession: userData;
+  userSession: UserData;
 };
 
 const defaultState: AuthContextType = {
@@ -21,7 +21,7 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [userSession, setUserSession] = useState<userData | null>(null);
+  const [userSession, setUserSession] = useState<UserData | null>(null);
 
   const formatSession = (session: any) => {
     return {

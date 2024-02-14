@@ -22,6 +22,15 @@ import ReUsableModal from "../components/ReUsableModal";
 import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
 
+// also, we only need to show the event if it's within the timeframe
+const timeFrameDict = {
+  "12H": 12 * 60 * 60 * 1000,
+  "24H": 24 * 60 * 60 * 1000,
+  "3D": 3 * 24 * 60 * 60 * 1000,
+  "7D": 7 * 24 * 60 * 60 * 1000,
+  "14D": 14 * 24 * 60 * 60 * 1000,
+};
+
 const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   if (!data) return;
   let closestPoint = data[0];
@@ -37,20 +46,83 @@ const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   return closestPoint;
 };
 
-// also, we only need to show the event if it's within the timeframe
 // we need to get the highlighting to work
 
 export const GlucoseLevelChart = ({ modalState }) => {
-  const [events, setEvents] = useState([]);
   const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-  const { userSession } = useContext(AuthContext);
-
   const today = new Date();
   const startOfDay = new Date(
     today.getFullYear(),
     today.getMonth(),
     today.getDate()
   );
+
+  const { userSession } = useContext(AuthContext);
+
+  const [events, setEvents] = useState([]);
+  const [pressed, setPressed] = useState(false);
+  const [averageGL, setAverageGL] = useState(0);
+  const [timeframe, setTimeframe] = useState<string>("12H"); // make this into an enum
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const [chartData, setChartData] = useState(timestamps);
+  const [cursorValue, setCursorValue] = useState<{
+    x: number;
+    y: number | undefined;
+  }>();
+
+  // This should be done in the backend
+  const hours12data: GlucoseData = useMemo(
+    () =>
+      getGlucoseDataForPeriod(
+        dummyGlucoseData,
+        new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000),
+        new Date()
+      ),
+    [glucoseData]
+  );
+
+  const hours24data: GlucoseData = useMemo(
+    () =>
+      getGlucoseDataForPeriod(
+        dummyGlucoseData,
+        new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000),
+        new Date()
+      ),
+    [glucoseData]
+  );
+  const days3data: GlucoseData = useMemo(
+    () =>
+      getGlucoseDataForPeriod(
+        dummyGlucoseData,
+        new Date(yesterDay.getTime() - 3 * 24 * 60 * 60 * 1000),
+        new Date()
+      ).filter((_, index) => index % 2 === 0),
+    [glucoseData]
+  );
+  const days7data: GlucoseData = useMemo(
+    () =>
+      getGlucoseDataForPeriod(
+        dummyGlucoseData,
+        new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000),
+        new Date()
+      ).filter((_, index) => index % 5 === 0),
+    [glucoseData]
+  );
+  const days14data: GlucoseData = useMemo(
+    () =>
+      getGlucoseDataForPeriod(
+        dummyGlucoseData,
+        new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000),
+        new Date()
+      ).filter((_, index) => index % 9 === 0),
+    [glucoseData]
+  );
+
+  const changeData = (data: GlucoseData) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setChartData(data);
+  };
 
   const fetchMealEvents = async () => {
     const { data, error } = await supabase
@@ -106,66 +178,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
     fetchEvents();
   }, []);
 
-  // This should be done in the backend
-  const hours12data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000),
-        new Date()
-      ),
-    [glucoseData]
-  );
-
-  console.log("hours12data", hours12data);
-
-  const hours24data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000),
-        new Date()
-      ),
-    [glucoseData]
-  );
-  const days3data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 3 * 24 * 60 * 60 * 1000),
-        new Date()
-      ).filter((_, index) => index % 2 === 0),
-    [glucoseData]
-  );
-  const days7data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000),
-        new Date()
-      ).filter((_, index) => index % 5 === 0),
-    [glucoseData]
-  );
-  const days14data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000),
-        new Date()
-      ).filter((_, index) => index % 9 === 0),
-    [glucoseData]
-  );
-
-  const [chartData, setChartData] = useState(timestamps);
-  const [cursorValue, setCursorValue] = useState<{
-    x: number;
-    y: number | undefined;
-  }>();
-  const [pressed, setPressed] = useState(false);
-  const [averageGL, setAverageGL] = useState(0);
-  const [timeframe, setTimeframe] = useState("12H"); // make this into an enum
-  const [selectedEvent, setSelectedEvent] = useState(null);
-
   useEffect(() => {
     if (chartData.length > 0) {
       const val = chartData[chartData.length - 1].x;
@@ -173,22 +185,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
         setCursorValue({ x: val ?? 0, y: chartData[chartData.length - 1].y });
     }
   }, [cursorValue, chartData]);
-
-  const calculateAverageGL = (data: GlucoseData) => {
-    if (!chartData) return;
-    let sum = 0;
-    let count = 0;
-    for (let i = 0; i < data.length; i++) {
-      sum += data[i].y;
-      count++;
-    }
-    return sum / count;
-  };
-
-  const changeData = (data: GlucoseData) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setChartData(data);
-  };
 
   return (
     <>
@@ -287,32 +283,38 @@ export const GlucoseLevelChart = ({ modalState }) => {
                 style={{ data: { fill: "red" } }}
               />
             )}
-            {events.map((event, index) => {
-              const highlightEvent =
-                cursorValue &&
-                cursorValue.x >= event.x - 0.5 &&
-                cursorValue.x <= event.x + 0.5;
+            {events
+              .filter((event) => {
+                const timeframeStart =
+                  new Date().getTime() - timeFrameDict[timeframe]; // 12 hours in milliseconds
+                return event.x >= timeframeStart;
+              })
+              .map((event, index) => {
+                const highlightEvent =
+                  cursorValue &&
+                  cursorValue.x >= event.x - 0.5 &&
+                  cursorValue.x <= event.x + 0.5;
 
-              // useEffect(() => {
-              //   if (highlightEvent) setSelectedEvent(index);
-              //   // Haptic feedback
-              // }, [highlightEvent]);
+                // useEffect(() => {
+                //   if (highlightEvent) setSelectedEvent(index);
+                //   // Haptic feedback
+                // }, [highlightEvent]);
 
-              return (
-                <VictoryGroup animate={false} key={index}>
-                  <VictoryScatter
-                    data={[event]}
-                    dataComponent={
-                      <FoodIcon
-                        highlightEvent={highlightEvent}
-                        x={undefined}
-                        y={undefined}
-                      />
-                    }
-                  />
-                </VictoryGroup>
-              );
-            })}
+                return (
+                  <VictoryGroup animate={false} key={index}>
+                    <VictoryScatter
+                      data={[event]}
+                      dataComponent={
+                        <FoodIcon
+                          highlightEvent={highlightEvent}
+                          x={undefined}
+                          y={undefined}
+                        />
+                      }
+                    />
+                  </VictoryGroup>
+                );
+              })}
           </VictoryChart>
         </View>
 

@@ -12,6 +12,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
+import { UserDataContext } from "../contexts/UserDataContext";
 
 type AddFoodProps = {
   setAddFoodModalVisible: (val: boolean) => void;
@@ -20,6 +21,7 @@ type AddFoodProps = {
 const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   const [meal, setMeal] = useState("");
   const [timestamp, setTimestamp] = useState(new Date());
+  const { refreshMeals } = useContext(UserDataContext);
 
   const { userSession } = useContext(AuthContext);
 
@@ -29,6 +31,7 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
   };
 
   const handleSaveAndExit = async () => {
+    if (!userSession) return;
     const { data, error } = await supabase
       .from("meals")
       .insert([{ time: timestamp, description: meal, uid: userSession.id }]);
@@ -36,6 +39,7 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
       console.log("Error saving meal: ", error);
     } else {
       setAddFoodModalVisible(false);
+      refreshMeals(userSession);
     }
   };
 
@@ -48,6 +52,7 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
     } else {
       setMeal("");
       setTimestamp(new Date());
+      refreshMeals(userSession);
     }
   };
 

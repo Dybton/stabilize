@@ -14,6 +14,7 @@ import DateTimePicker, {
 
 import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
+import { UserDataContext } from "../contexts/UserDataContext";
 
 type AddActivityProps = {
   setActivityModalVisible: (val: boolean) => void;
@@ -27,14 +28,12 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
 
   const { userSession } = useContext(AuthContext);
 
+  const { refreshActivities } = useContext(UserDataContext);
+
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
     setTimestamp(currentDate);
   };
-
-  useEffect(() => {
-    console.log(activity);
-  }, [duration]);
 
   const handleSaveAndExit = async () => {
     const { data, error } = await supabase.from("activities").insert([
@@ -49,6 +48,7 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
       console.log("Error saving meal: ", error);
     } else {
       setActivityModalVisible(false);
+      refreshActivities(userSession);
     }
   };
 
@@ -68,6 +68,7 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
       setTimestamp(new Date());
       setDuration(0);
       setSliderValue(0);
+      refreshActivities(userSession);
     }
   };
 

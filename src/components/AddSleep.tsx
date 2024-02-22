@@ -17,6 +17,7 @@ import { yesterdayTimeStamp } from "../utils/yesterdayTimeStamp";
 import { parseSleepQuality } from "../utils/parseSleepQuality";
 import { formatDuration } from "../utils/formatDuration";
 import { AuthContext } from "../contexts/AuthContext";
+import { UserDataContext } from "../contexts/UserDataContext";
 
 type AddSleepProps = {
   setSleepModalVisible: (val: boolean) => void;
@@ -28,6 +29,7 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
   const [sleepQuality, setSleepQuality] = useState(0);
 
   const { userSession } = useContext(AuthContext);
+  const { refreshSleepData } = useContext(UserDataContext);
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
@@ -47,24 +49,7 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
       console.log("Error saving meal: ", error);
     } else {
       setSleepModalVisible(false);
-    }
-  };
-
-  const handleSaveAndAddAnother = async () => {
-    const { data, error } = await supabase.from("sleep").insert([
-      {
-        time: timestamp,
-        duration,
-        quality: sleepQuality,
-        uid: userSession.id,
-      },
-    ]);
-    if (error) {
-      console.log("Error saving meal: ", error);
-    } else {
-      setTimestamp(yesterdayTimeStamp);
-      setDuration(0);
-      setSleepQuality(0);
+      refreshSleepData(userSession);
     }
   };
 

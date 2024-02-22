@@ -19,85 +19,36 @@ import { TouchableOpacity } from "react-native";
 import Profile from "../components/Profile";
 import ReUsableModal from "../components/ReUsableModal";
 import { AuthContext } from "../contexts/AuthContext";
+import { UserDataContext } from "../contexts/UserDataContext";
+
+type Sleep = {
+  created_at: string;
+  duration: number;
+  quality: number;
+  time: number;
+  id: number;
+  uid: string;
+};
 
 const Log = ({ modalState }) => {
-  const [sleepData, setSleepData] = React.useState(null);
+  const [sleep, setSleep] = React.useState(null);
   const [meals, setMeals] = React.useState(null);
   const [activities, setActivities] = React.useState(null);
   const [profileModalVisible, setProfileModalVisible] = React.useState(false);
 
-  const { userSession } = useContext(AuthContext);
+  console.log("sleep ", sleep);
 
-  const today = new Date();
-  const startOfDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
+  const {
+    sleep: sleepDataFromContext,
+    meals: mealDataFromContext,
+    activities: activityDataFromContext,
+  } = useContext(UserDataContext);
 
   useEffect(() => {
-    const fetchSleepData = async () => {
-      const cufoffStart = new Date();
-      cufoffStart.setDate(cufoffStart.getDate() - 1);
-      cufoffStart.setHours(18, 0, 0, 0);
-
-      const cutOffEnd = new Date();
-      cutOffEnd.setHours(18, 0, 0, 0);
-
-      const { data, error } = await supabase
-        .from("sleep")
-        .select("*")
-        .gte("time", cufoffStart)
-        .lte("time", cutOffEnd)
-        .match({ uid: userSession.id });
-
-      console.log("Sleep data: ", data);
-      if (error || !data) {
-        console.log("Error fetching sleep data: ", error);
-        return;
-      } else {
-        console.log("Sleep data: ", data);
-        setSleepData(data);
-      }
-    };
-
-    const fetchMealData = async () => {
-      const { data, error } = await supabase
-        .from("meals")
-        .select("*")
-        .gte("time", startOfDay)
-        .lte("time", new Date())
-        .match({ uid: userSession.id });
-
-      console.log("Meal data: ", data);
-      if (error || !data) {
-        console.log("Error fetching meal data: ", error);
-        return;
-      } else {
-        setMeals(data);
-      }
-    };
-
-    const fetchActivityData = async () => {
-      const { data, error } = await supabase
-        .from("activities")
-        .select("*")
-        .gte("time", startOfDay)
-        .lte("time", new Date())
-        .match({ uid: userSession.id });
-      console.log("Activity data: ", data);
-      if (error || !data) {
-        console.log("Error fetching meal data: ", error);
-        return;
-      } else {
-        setActivities(data);
-      }
-    };
-
-    fetchSleepData();
-    fetchMealData();
-    fetchActivityData();
-  }, []);
+    sleepDataFromContext && setSleep(sleepDataFromContext);
+    mealDataFromContext && setMeals(mealDataFromContext);
+    activityDataFromContext && setActivities(activityDataFromContext);
+  }, [sleepDataFromContext, mealDataFromContext, activityDataFromContext]);
 
   return (
     <>
@@ -143,7 +94,7 @@ const Log = ({ modalState }) => {
           </View>
         </View>
 
-        <SleepComponent sleepData={sleepData} />
+        <SleepComponent sleep={sleep} />
         <ActivitySection activities={activities} />
         <MealsSection meals={meals} />
       </ScrollView>
@@ -152,12 +103,12 @@ const Log = ({ modalState }) => {
   );
 };
 
-const SleepComponent = ({ sleepData }) => {
-  if (!sleepData) {
+const SleepComponent = ({ sleep }) => {
+  if (!sleep) {
     return <StatusComponent text={"Loading..."} title={"Sleep"} />;
   }
 
-  if (sleepData.length === 0) {
+  if (sleep.length === 0) {
     return (
       <StatusComponent
         text={"No sleep have been logged for today..."}
@@ -170,7 +121,7 @@ const SleepComponent = ({ sleepData }) => {
     <View style={styles.section}>
       <Text style={styles.h2}>Sleep</Text>
 
-      {sleepData.map((activity, index) => (
+      {sleep.map((activity: Sleep, index: number) => (
         <View
           key={index}
           style={{

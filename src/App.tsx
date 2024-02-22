@@ -13,6 +13,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Linking from "expo-linking";
 import { AuthProvider } from "./contexts/AuthContext";
 import { StackNavigator } from "./navigation/StackNavigator";
+import { UserDataProvider } from "./contexts/UserDataContext";
 
 const prefix = Linking.createURL("/");
 
@@ -53,69 +54,71 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <BottomSheetModalProvider>
-          <NavigationContainer
-            linking={linking}
-            fallback={<Text>Loading...</Text>}
-          >
-            <StackNavigator
-              handlePresentModalPress={handlePresentModalPress}
-              modalState={modalState}
-            />
-            <BottomSheetModal
-              ref={bottomSheetModalRef}
-              index={1}
-              snapPoints={snapPoints}
-              onChange={handleSheetChanges}
-              enableContentPanningGesture={true}
+      <UserDataProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <BottomSheetModalProvider>
+            <NavigationContainer
+              linking={linking}
+              fallback={<Text>Loading...</Text>}
             >
-              <View style={styles2.contentContainer}>
-                <View style={styles2.roundButtonContainer}>
-                  <TouchableOpacity
-                    style={styles2.roundButton}
-                    onPress={() => {
-                      bottomSheetModalRef.current?.dismiss();
-                      setSleepModalVisible(true);
-                    }}
-                  ></TouchableOpacity>
-                  <Text style={{ marginTop: 10 }}>Sleep</Text>
-                </View>
+              <StackNavigator
+                handlePresentModalPress={handlePresentModalPress}
+                modalState={modalState}
+              />
+              <BottomSheetModal
+                ref={bottomSheetModalRef}
+                index={1}
+                snapPoints={snapPoints}
+                onChange={handleSheetChanges}
+                enableContentPanningGesture={true}
+              >
+                <View style={styles2.contentContainer}>
+                  <View style={styles2.roundButtonContainer}>
+                    <TouchableOpacity
+                      style={styles2.roundButton}
+                      onPress={() => {
+                        bottomSheetModalRef.current?.dismiss();
+                        setSleepModalVisible(true);
+                      }}
+                    ></TouchableOpacity>
+                    <Text style={{ marginTop: 10 }}>Sleep</Text>
+                  </View>
 
-                <View style={styles2.roundButtonContainer}>
-                  <TouchableOpacity
-                    style={styles2.roundButton}
-                    onPress={() => {
-                      bottomSheetModalRef.current?.dismiss();
-                      setAddFoodModalVisible(true);
-                    }}
-                  ></TouchableOpacity>
-                  <Text style={{ marginTop: 10 }}>Diet</Text>
-                </View>
+                  <View style={styles2.roundButtonContainer}>
+                    <TouchableOpacity
+                      style={styles2.roundButton}
+                      onPress={() => {
+                        bottomSheetModalRef.current?.dismiss();
+                        setAddFoodModalVisible(true);
+                      }}
+                    ></TouchableOpacity>
+                    <Text style={{ marginTop: 10 }}>Diet</Text>
+                  </View>
 
-                <View style={styles2.roundButtonContainer}>
-                  <TouchableOpacity
-                    style={styles2.roundButton}
-                    onPress={() => {
-                      bottomSheetModalRef.current?.dismiss();
-                      setActivityModalVisible(true);
-                    }}
-                  ></TouchableOpacity>
-                  <Text style={{ marginTop: 10 }}>Activity</Text>
+                  <View style={styles2.roundButtonContainer}>
+                    <TouchableOpacity
+                      style={styles2.roundButton}
+                      onPress={() => {
+                        bottomSheetModalRef.current?.dismiss();
+                        setActivityModalVisible(true);
+                      }}
+                    ></TouchableOpacity>
+                    <Text style={{ marginTop: 10 }}>Activity</Text>
+                  </View>
                 </View>
-              </View>
-              <View style={{ flex: 1, justifyContent: "flex-end" }}>
-                <TouchableOpacity
-                  style={styles2.closeButton}
-                  onPress={() => bottomSheetModalRef.current?.dismiss()}
-                >
-                  <Text>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </BottomSheetModal>
-          </NavigationContainer>
-        </BottomSheetModalProvider>
-      </GestureHandlerRootView>
+                <View style={{ flex: 1, justifyContent: "flex-end" }}>
+                  <TouchableOpacity
+                    style={styles2.closeButton}
+                    onPress={() => bottomSheetModalRef.current?.dismiss()}
+                  >
+                    <Text>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </BottomSheetModal>
+            </NavigationContainer>
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
+      </UserDataProvider>
     </AuthProvider>
   );
 }

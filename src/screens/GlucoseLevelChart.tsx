@@ -7,7 +7,7 @@ import {
   VictoryAxis,
   VictoryGroup,
 } from "victory-native";
-import { View, Text, Button, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Dimensions } from "react-native";
 import CustomButton from "../components/CustomButton";
@@ -250,12 +250,19 @@ export const GlucoseLevelChart = ({ modalState }) => {
             {...(pressed ? {} : { animate: { duration: 200 } })}
             containerComponent={
               <VictoryCursorContainer
-                onCursorChange={(value) => {
+                onCursorChange={(value: GlucoseEvent) => {
                   if (value) {
-                    // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                    setCursorValue(
-                      typeof value === "number" ? { x: value, y: value } : value
-                    );
+                    const closestPoint =
+                      value &&
+                      value.x &&
+                      value.y &&
+                      findClosestPoint(chartData, value);
+                    const yValue = closestPoint ? closestPoint.y : value.y;
+
+                    setCursorValue({
+                      x: value.x,
+                      y: yValue,
+                    });
                   }
                 }}
                 onTouchEnd={() => {

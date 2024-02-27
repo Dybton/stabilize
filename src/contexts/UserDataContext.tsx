@@ -21,6 +21,8 @@ type Activity = {
   type: string;
   duration: number;
   uid: string;
+  description: string;
+  time: string;
 };
 
 type Sleep = {

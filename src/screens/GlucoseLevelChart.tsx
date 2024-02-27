@@ -21,6 +21,7 @@ import timestamps from "../../DummyData";
 import ReUsableModal from "../components/ReUsableModal";
 import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
+import { UserDataContext } from "../contexts/UserDataContext";
 
 // also, we only need to show the event if it's within the timeframe
 const timeFrameDict = {
@@ -56,6 +57,9 @@ export const GlucoseLevelChart = ({ modalState }) => {
     today.getMonth(),
     today.getDate()
   );
+
+  const { meals: mealDataFromContext, activities: activityDataFromContext } =
+    useContext(UserDataContext);
 
   const { userSession } = useContext(AuthContext);
 
@@ -124,34 +128,9 @@ export const GlucoseLevelChart = ({ modalState }) => {
     setChartData(data);
   };
 
-  const fetchMealEvents = async () => {
-    const { data, error } = await supabase
-      .from("meals")
-      .select("*")
-      .gte("time", startOfDay)
-      .lte("time", new Date())
-      .match({ uid: userSession.id });
-
-    return data;
-  };
-
-  const fetchActivityData = async () => {
-    const { data, error } = await supabase
-      .from("activities")
-      .select("*")
-      .gte("time", startOfDay)
-      .lte("time", new Date())
-      .match({ uid: userSession.id });
-
-    return data;
-  };
-
   useEffect(() => {
     const fetchEvents = async () => {
-      const mealEvents = await fetchMealEvents();
-      const activityEvents = await fetchActivityData();
-
-      const formattedMealEvents = mealEvents.map((event) => {
+      const formattedMealEvents = mealDataFromContext.map((event) => {
         const time = new Date(event.time).getTime();
 
         return {
@@ -162,7 +141,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
         };
       });
 
-      const formattedActivityEvents = activityEvents.map((event) => {
+      const formattedActivityEvents = activityDataFromContext.map((event) => {
         const time = new Date(event.time).getTime();
         return {
           x: time,
@@ -176,7 +155,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
     };
 
     fetchEvents();
-  }, []);
+  }, [mealDataFromContext, activityDataFromContext]);
 
   useEffect(() => {
     if (chartData.length > 0) {

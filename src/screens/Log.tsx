@@ -36,8 +36,6 @@ const Log = ({ modalState }) => {
   const [activities, setActivities] = React.useState(null);
   const [profileModalVisible, setProfileModalVisible] = React.useState(false);
 
-  console.log("sleep ", sleep);
-
   const {
     sleep: sleepDataFromContext,
     meals: mealDataFromContext,

@@ -3,6 +3,7 @@ import { Alert, StyleSheet, View } from "react-native";
 import { supabase } from "../../api/supabaseClient";
 import { Button, Input } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
+import { Session } from "@supabase/supabase-js";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -23,6 +24,14 @@ export default function Auth() {
     setLoading(false);
   }
 
+  const createUser = async (session: Session) => {
+    const { error } = await supabase
+      .from("users")
+      .insert([{ user_id: session.user.id }]);
+
+    if (error) Alert.alert(error.message);
+  };
+
   async function signUpWithEmail() {
     setLoading(true);
     const {
@@ -34,7 +43,9 @@ export default function Auth() {
     });
 
     if (error) Alert.alert(error.message);
+    createUser(session);
     if (!error && session) navigation.navigate("Home");
+
     setLoading(false);
   }
 

@@ -18,7 +18,6 @@ import { AccountIcon } from "../components/Icons/AccountIcon";
 import { TouchableOpacity } from "react-native";
 import Profile from "../components/Profile";
 import ReUsableModal from "../components/ReUsableModal";
-import { AuthContext } from "../contexts/AuthContext";
 import { UserDataContext } from "../contexts/UserDataContext";
 
 type Sleep = {
@@ -43,9 +42,22 @@ const Log = ({ modalState }) => {
   } = useContext(UserDataContext);
 
   useEffect(() => {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const filteredMeals = mealDataFromContext.filter((meal) => {
+      const mealTime = new Date(meal.time);
+      return mealTime >= oneDayAgo && mealTime <= now;
+    });
+
+    const filteredActivities = activityDataFromContext.filter((activity) => {
+      const activityTime = new Date(activity.time);
+      return activityTime >= oneDayAgo && activityTime <= now;
+    });
+
     sleepDataFromContext && setSleep(sleepDataFromContext);
-    mealDataFromContext && setMeals(mealDataFromContext);
-    activityDataFromContext && setActivities(activityDataFromContext);
+    mealDataFromContext && setMeals(filteredMeals);
+    activityDataFromContext && setActivities(filteredActivities);
   }, [sleepDataFromContext, mealDataFromContext, activityDataFromContext]);
 
   return (
@@ -159,7 +171,7 @@ const SleepComponent = ({ sleep }) => {
   );
 };
 
-const ActivitySection = ({ activities }) => {
+export const ActivitySection = ({ activities }) => {
   if (!activities) {
     return <StatusComponent text={"Loading..."} title={"Activities"} />;
   }

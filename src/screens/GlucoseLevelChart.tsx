@@ -19,6 +19,7 @@ import ReUsableModal from "../components/ReUsableModal";
 import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
 import { UserDataContext } from "../contexts/UserDataContext";
+import { ActivitySection } from "./Log";
 
 const timeFrameDict = {
   "12H": 12 * 60 * 60 * 1000,
@@ -29,7 +30,7 @@ const timeFrameDict = {
 };
 
 const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
-  if (!data) return;
+  if (!data || data.length === 0) return null;
   let closestPoint = data[0];
   let closestDistance = Math.abs(data[0].x - value.x);
 
@@ -51,9 +52,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
     today.getMonth(),
     today.getDate()
   );
-
-  const { meals: mealDataFromContext, activities: activityDataFromContext } =
-    useContext(UserDataContext);
 
   const { userSession } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
@@ -77,34 +75,38 @@ export const GlucoseLevelChart = ({ modalState }) => {
     setChartData(data);
   };
 
+  const [formattedEvents, setFormattedEvents] = useState([]);
+
+  const { meals: mealDataFromContext, activities: activityDataFromContext } =
+    useContext(UserDataContext);
+
   useEffect(() => {
-    const fetchEvents = async () => {
-      const formattedMealEvents = mealDataFromContext.map((event) => {
-        const time = new Date(event.time).getTime();
+    if (!chartData || chartData.length === 0) return;
+    const formattedMealEvents = mealDataFromContext.map((event) => {
+      const time = new Date(event.time).getTime();
 
-        return {
-          x: time,
-          y: findClosestPoint(chartData, { x: time, y: undefined }).y,
-          description: event.description,
-          type: "meal",
-        };
-      });
+      return {
+        x: time,
+        y: findClosestPoint(chartData, { x: time, y: undefined }).y,
+        description: event.description,
+        type: "meal",
+      };
+    });
 
-      const formattedActivityEvents = activityDataFromContext.map((event) => {
-        const time = new Date(event.time).getTime();
-        return {
-          x: time,
-          y: findClosestPoint(chartData, { x: time, y: undefined }).y,
-          description: event.description,
-          type: "activity",
-        };
-      });
+    const formattedActivityEvents = activityDataFromContext.map((event) => {
+      const time = new Date(event.time).getTime();
+      return {
+        x: time,
+        y: findClosestPoint(chartData, { x: time, y: undefined }).y,
+        description: event.description,
+        type: "activity",
+      };
+    });
 
-      setEvents([...formattedMealEvents, ...formattedActivityEvents]);
-    };
-
-    fetchEvents();
-  }, [mealDataFromContext, activityDataFromContext]);
+    mealDataFromContext &&
+      activityDataFromContext &&
+      setFormattedEvents([...formattedMealEvents, ...formattedActivityEvents]);
+  }, [mealDataFromContext, activityDataFromContext, chartData]);
 
   const fetchGlucoseMeasurements = async () => {
     if (!userSession) return;
@@ -295,38 +297,39 @@ export const GlucoseLevelChart = ({ modalState }) => {
                 style={{ data: { fill: "red" } }}
               />
             )}
-            {events
-              .filter((event) => {
-                const timeframeStart =
-                  new Date().getTime() - timeFrameDict[timeframe]; // 12 hours in milliseconds
-                return event.x >= timeframeStart;
-              })
-              .map((event, index) => {
-                const highlightEvent =
-                  cursorValue &&
-                  cursorValue.x >= event.x - 0.5 &&
-                  cursorValue.x <= event.x + 0.5;
+            {formattedEvents &&
+              formattedEvents
+                .filter((event) => {
+                  const timeframeStart =
+                    new Date().getTime() - timeFrameDict[timeframe]; // 12 hours in milliseconds
+                  return event.x >= timeframeStart;
+                })
+                .map((event, index) => {
+                  const highlightEvent =
+                    cursorValue &&
+                    cursorValue.x >= event.x - 0.5 &&
+                    cursorValue.x <= event.x + 0.5;
 
-                // useEffect(() => {
-                //   if (highlightEvent) setSelectedEvent(index);
-                //   // Haptic feedback
-                // }, [highlightEvent]);
+                  // useEffect(() => {
+                  //   if (highlightEvent) setSelectedEvent(index);
+                  //   // Haptic feedback
+                  // }, [highlightEvent]);
 
-                return (
-                  <VictoryGroup animate={false} key={index}>
-                    <VictoryScatter
-                      data={[event]}
-                      dataComponent={
-                        <FoodIcon
-                          highlightEvent={highlightEvent}
-                          x={undefined}
-                          y={undefined}
-                        />
-                      }
-                    />
-                  </VictoryGroup>
-                );
-              })}
+                  return (
+                    <VictoryGroup animate={false} key={index}>
+                      <VictoryScatter
+                        data={[event]}
+                        dataComponent={
+                          <FoodIcon
+                            highlightEvent={highlightEvent}
+                            x={undefined}
+                            y={undefined}
+                          />
+                        }
+                      />
+                    </VictoryGroup>
+                  );
+                })}
           </VictoryChart>
         </View>
 
@@ -367,6 +370,10 @@ export const GlucoseLevelChart = ({ modalState }) => {
             setTimeframe={setTimeframe}
           />
         </View>
+        {events &&
+          events.map((event, index) => (
+            <Text key={index}>{event.description}</Text>
+          ))}
 
         <View style={styles.container}>
           {selectedEvent !== null && (

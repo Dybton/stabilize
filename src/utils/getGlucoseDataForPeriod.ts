@@ -1,7 +1,14 @@
 import { GlucoseData } from "../../Types";
 
 export const getGlucoseDataForPeriod = (glucoseData: GlucoseData, startTime : Date, endTime : Date) : GlucoseData => {
-    const filteredData = glucoseData.filter((data) => {
+  const formattedData = glucoseData.map((data) => {
+    return {
+      x: new Date(data.x).getTime(),
+      y: data.y,
+    };
+  })
+
+    const filteredData = glucoseData?.filter((data) => {
 
       const startTimestamp = startTime.getTime();
       const endTimestamp = endTime.getTime();

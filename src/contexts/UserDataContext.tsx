@@ -63,21 +63,21 @@ export const UserDataProvider = ({ children }: UserDataProviderProps) => {
   const [sleep, setSleep] = useState<Sleep[]>([]);
 
   const today = new Date();
-  const startOfDay = new Date(
+  const twoWeeksAgo = new Date(
     today.getFullYear(),
     today.getMonth(),
     today.getDate()
   );
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
+  // We need to pass the data
   const fetchMealData = async (session: UserData) => {
     const { data, error } = await supabase
       .from("meals")
       .select("*")
-      .gte("time", startOfDay)
+      .gte("time", twoWeeksAgo)
       .lte("time", new Date())
       .match({ uid: session.id });
-
-    console.log("Meal data: ", data);
     if (error) {
       console.log("Error fetching meal data: ", error);
       return;
@@ -86,15 +86,14 @@ export const UserDataProvider = ({ children }: UserDataProviderProps) => {
     }
   };
 
-  const fetchActivityData = async (session: UserData) => {
+  const fetchActivityData = async (session: UserDate) => {
     console.log("userSession here is ", session);
     const { data, error } = await supabase
       .from("activities")
       .select("*")
-      .gte("time", startOfDay)
+      .gte("time", twoWeeksAgo)
       .lte("time", new Date())
       .match({ uid: session.id });
-    console.log("Activity data: ", data);
     if (error) {
       console.log("Error fetching activity data: ", error);
       return;
@@ -104,7 +103,6 @@ export const UserDataProvider = ({ children }: UserDataProviderProps) => {
   };
 
   const fetchSleepData = async (session: UserData) => {
-    console.log("userSession here is ", session);
     const cufoffStart = new Date();
     cufoffStart.setDate(cufoffStart.getDate() - 1);
     cufoffStart.setHours(18, 0, 0, 0);

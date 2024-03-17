@@ -13,9 +13,6 @@ import { Dimensions } from "react-native";
 import CustomButton from "../components/CustomButton";
 import FoodIcon from "../components/Icons/FoodIcon";
 import { StyleSheet } from "react-native";
-import glucoseData from "../../DummyData";
-import dummyGlucoseData from "../../DummyData2";
-import { getGlucoseDataForPeriod } from "../utils/getGlucoseDataForPeriod";
 import { GlucoseData, GlucoseEvent } from "../../Types";
 import timestamps from "../../DummyData";
 import ReUsableModal from "../components/ReUsableModal";
@@ -23,7 +20,6 @@ import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
 import { UserDataContext } from "../contexts/UserDataContext";
 
-// also, we only need to show the event if it's within the timeframe
 const timeFrameDict = {
   "12H": 12 * 60 * 60 * 1000,
   "24H": 24 * 60 * 60 * 1000,
@@ -47,8 +43,6 @@ const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   return closestPoint;
 };
 
-// we need to get the highlighting to work
-
 export const GlucoseLevelChart = ({ modalState }) => {
   const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
   const today = new Date();
@@ -62,66 +56,21 @@ export const GlucoseLevelChart = ({ modalState }) => {
     useContext(UserDataContext);
 
   const { userSession } = useContext(AuthContext);
-
   const [events, setEvents] = useState([]);
   const [pressed, setPressed] = useState(false);
-  const [averageGL, setAverageGL] = useState(0);
-  const [timeframe, setTimeframe] = useState<string>("12H"); // make this into an enum
+  const [timeframe, setTimeframe] = useState<string>("12H");
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [glucoseTwelveHours, setGlucoseTwelveHours] = useState([]);
+  const [glucoseTwentyFourHours, setGlucoseTwentyFourHours] = useState([]);
+  const [glucoseThreeDays, setGlucoseThreeDays] = useState([]);
+  const [glucoseSevenDays, setGlucoseSevenDays] = useState([]);
+  const [glucoseFourteenDays, setGlucoseFourteenDays] = useState([]);
 
-  const [chartData, setChartData] = useState(timestamps);
+  const [chartData, setChartData] = useState([]);
   const [cursorValue, setCursorValue] = useState<{
     x: number;
     y: number | undefined;
   }>();
-
-  // This should be done in the backend
-  const hours12data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 12 * 60 * 60 * 1000),
-        new Date()
-      ),
-    [glucoseData]
-  );
-
-  const hours24data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 24 * 60 * 60 * 1000),
-        new Date()
-      ),
-    [glucoseData]
-  );
-  const days3data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 3 * 24 * 60 * 60 * 1000),
-        new Date()
-      ).filter((_, index) => index % 2 === 0),
-    [glucoseData]
-  );
-  const days7data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 7 * 24 * 60 * 60 * 1000),
-        new Date()
-      ).filter((_, index) => index % 5 === 0),
-    [glucoseData]
-  );
-  const days14data: GlucoseData = useMemo(
-    () =>
-      getGlucoseDataForPeriod(
-        dummyGlucoseData,
-        new Date(yesterDay.getTime() - 14 * 24 * 60 * 60 * 1000),
-        new Date()
-      ).filter((_, index) => index % 9 === 0),
-    [glucoseData]
-  );
 
   const changeData = (data: GlucoseData) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -157,6 +106,82 @@ export const GlucoseLevelChart = ({ modalState }) => {
     fetchEvents();
   }, [mealDataFromContext, activityDataFromContext]);
 
+  const fetchGlucoseMeasurements = async () => {
+    if (!userSession) return;
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("patient_id")
+      .eq("user_id", userSession.id)
+      .single();
+
+    if (userError || !userData) {
+      console.log("Error fetching user or no user data: ", userError);
+      return;
+    }
+
+    const filterDataByTimestamp = (
+      timestamp: number,
+      data: { glucose_level: number; measurement_timestamp: string }[]
+    ) => {
+      return data
+        .filter((item) => {
+          const itemTimestamp = new Date(item.measurement_timestamp).getTime();
+          return itemTimestamp >= timestamp;
+        })
+        .map((item) => ({
+          y: item.glucose_level,
+          x: new Date(item.measurement_timestamp).getTime(),
+        }))
+        .sort((a, b) => a.x - b.x);
+    };
+
+    const { data: glucoseMeasurements, error: glucoseError } = await supabase
+      .from("glucose_measurements")
+      .select("glucose_level, measurement_timestamp")
+      .eq("patient_id", userData.patient_id);
+
+    if (glucoseError) {
+      console.log("Error fetching glucose measurements: ", glucoseError);
+    } else {
+      const twelveHoursAgo = new Date().getTime() - 12 * 60 * 60 * 1000;
+      const twentyFourHoursAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
+      const threeDaysAgo = new Date().getTime() - 3 * 24 * 60 * 60 * 1000;
+      const sevenDaysAgo = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
+      const fourteenDaysAgo = new Date().getTime() - 14 * 24 * 60 * 60 * 1000;
+
+      const twelveHoursData = filterDataByTimestamp(
+        twelveHoursAgo,
+        glucoseMeasurements
+      );
+      const twentyFourHoursData = filterDataByTimestamp(
+        twentyFourHoursAgo,
+        glucoseMeasurements
+      );
+      const threeDaysData = filterDataByTimestamp(
+        threeDaysAgo,
+        glucoseMeasurements
+      );
+      const sevenDaysData = filterDataByTimestamp(
+        sevenDaysAgo,
+        glucoseMeasurements
+      );
+      const fourteenDaysData = filterDataByTimestamp(
+        fourteenDaysAgo,
+        glucoseMeasurements
+      );
+
+      setGlucoseTwelveHours(twelveHoursData);
+      setGlucoseTwentyFourHours(twentyFourHoursData);
+      setGlucoseThreeDays(threeDaysData);
+      setGlucoseSevenDays(sevenDaysData);
+      setGlucoseFourteenDays(fourteenDaysData);
+    }
+  };
+
+  useEffect(() => {
+    fetchGlucoseMeasurements();
+  }, []);
+
   useEffect(() => {
     if (chartData.length > 0) {
       const val = chartData[chartData.length - 1].x;
@@ -180,7 +205,8 @@ export const GlucoseLevelChart = ({ modalState }) => {
             <Text style={{ textAlign: 'center' }}><Text style={{fontSize: 20}}>{averageGL.toFixed(1)}</Text> mmol/L</Text> */}
             <Text style={{ textAlign: "center" }}>Time:</Text>
             <Text style={{ textAlign: "center" }}>
-              {chartData === hours12data || chartData === hours24data ? (
+              {chartData === glucoseTwelveHours ||
+              chartData === glucoseTwentyFourHours ? (
                 <Text style={{ fontSize: 20 }}>
                   {cursorValue &&
                     new Date(cursorValue.x).toLocaleTimeString("en-US", {
@@ -306,35 +332,35 @@ export const GlucoseLevelChart = ({ modalState }) => {
 
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <CustomButton
-            data={hours12data}
+            data={glucoseTwelveHours}
             handleClick={changeData}
             text={"12H"}
             timeframe={timeframe}
             setTimeframe={setTimeframe}
           />
           <CustomButton
-            data={hours24data}
+            data={glucoseTwentyFourHours}
             handleClick={changeData}
             text={"24H"}
             timeframe={timeframe}
             setTimeframe={setTimeframe}
           />
           <CustomButton
-            data={days3data}
+            data={glucoseThreeDays}
             handleClick={changeData}
             text={"3D"}
             timeframe={timeframe}
             setTimeframe={setTimeframe}
           />
           <CustomButton
-            data={days7data}
+            data={glucoseSevenDays}
             handleClick={changeData}
             text={"7D"}
             timeframe={timeframe}
             setTimeframe={setTimeframe}
           />
           <CustomButton
-            data={days14data}
+            data={glucoseFourteenDays}
             handleClick={changeData}
             text={"14D"}
             timeframe={timeframe}
@@ -343,8 +369,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
         </View>
 
         <View style={styles.container}>
-          {/* ... (rest of your views) */}
-
           {selectedEvent !== null && (
             <TouchableOpacity
               style={styles.eventButton}
@@ -380,7 +404,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 3,
-    alignSelf: "center", // Center button horizontally
+    alignSelf: "center",
   },
   eventButtonText: {
     color: "white",

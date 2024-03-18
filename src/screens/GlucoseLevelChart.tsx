@@ -20,6 +20,8 @@ import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
 import { UserDataContext } from "../contexts/UserDataContext";
 import { ActivitySection } from "./Log";
+import ActivityIcon from "../components/Icons/ActivityIcon";
+import GraphActivityIcon from "../components/Icons/GraphActivityIcon";
 
 const timeFrameDict = {
   "12H": 12 * 60 * 60 * 1000,
@@ -320,11 +322,19 @@ export const GlucoseLevelChart = ({ modalState }) => {
                       <VictoryScatter
                         data={[event]}
                         dataComponent={
-                          <FoodIcon
-                            highlightEvent={highlightEvent}
-                            x={undefined}
-                            y={undefined}
-                          />
+                          event.type === "meal" ? (
+                            <FoodIcon
+                              highlightEvent={highlightEvent}
+                              x={undefined}
+                              y={undefined}
+                            />
+                          ) : (
+                            <GraphActivityIcon
+                              highlightEvent={highlightEvent}
+                              x={undefined}
+                              y={undefined}
+                            />
+                          )
                         }
                       />
                     </VictoryGroup>

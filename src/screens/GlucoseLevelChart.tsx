@@ -31,6 +31,18 @@ const timeFrameDict = {
   "14D": 14 * 24 * 60 * 60 * 1000,
 };
 
+const fetchServerData = async (param) => {
+  try {
+    const response = await fetch(
+      `http://nodejs-production-ec50.up.railway.app/sync/${param}`
+    );
+    const data = await response.text(); // Assuming the response is plain text
+    console.log(data); // Handle the data as needed
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+};
+
 const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   if (!data || data.length === 0) return null;
   let closestPoint = data[0];
@@ -122,6 +134,8 @@ export const GlucoseLevelChart = ({ modalState }) => {
       console.log("Error fetching user or no user data: ", userError);
       return;
     }
+
+    userData.patient_id && fetchServerData(userData.patient_id);
 
     const filterDataByTimestamp = (
       timestamp: number,

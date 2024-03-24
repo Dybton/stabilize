@@ -96,26 +96,38 @@ export const GlucoseLevelChart = ({ modalState }) => {
 
   useEffect(() => {
     if (!chartData || chartData.length === 0) return;
-    const formattedMealEvents = mealDataFromContext.map((event) => {
-      const time = new Date(event.time).getTime();
+    const formattedMealEvents = mealDataFromContext
+      .map((event) => {
+        const time = new Date(event.time).getTime();
 
-      return {
-        x: time,
-        y: findClosestPoint(chartData, { x: time, y: undefined }).y,
-        description: event.description,
-        type: "meal",
-      };
-    });
+        return {
+          x: time,
+          y: findClosestPoint(chartData, { x: time, y: undefined }).y,
+          description: event.description,
+          type: "meal",
+        };
+      })
+      .filter(
+        (event) =>
+          event.x >= chartData[0].x &&
+          event.x <= chartData[chartData.length - 1].x
+      );
 
-    const formattedActivityEvents = activityDataFromContext.map((event) => {
-      const time = new Date(event.time).getTime();
-      return {
-        x: time,
-        y: findClosestPoint(chartData, { x: time, y: undefined }).y,
-        description: event.description,
-        type: "activity",
-      };
-    });
+    const formattedActivityEvents = activityDataFromContext
+      .map((event) => {
+        const time = new Date(event.time).getTime();
+        return {
+          x: time,
+          y: findClosestPoint(chartData, { x: time, y: undefined }).y,
+          description: event.description,
+          type: "activity",
+        };
+      })
+      .filter(
+        (event) =>
+          event.x >= chartData[0].x &&
+          event.x <= chartData[chartData.length - 1].x
+      );
 
     mealDataFromContext &&
       activityDataFromContext &&

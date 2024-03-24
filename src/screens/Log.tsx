@@ -311,7 +311,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "red",
   },
   h1: {
     fontSize: 30,
@@ -333,7 +332,6 @@ const styles = StyleSheet.create({
   },
   box: {
     borderWidth: 1,
-    borderColor: "red",
     width: "50%",
   },
   modalView: {

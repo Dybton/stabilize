@@ -103,9 +103,9 @@ export const UserDataProvider = ({ children }: UserDataProviderProps) => {
   };
 
   const fetchSleepData = async (session: UserData) => {
-    const cufoffStart = new Date();
-    cufoffStart.setDate(cufoffStart.getDate() - 1);
-    cufoffStart.setHours(18, 0, 0, 0);
+    const cutOffStart = new Date();
+    cutOffStart.setDate(cutOffStart.getDate() - 1);
+    cutOffStart.setHours(18, 0, 0, 0);
 
     const cutOffEnd = new Date();
     cutOffEnd.setHours(18, 0, 0, 0);
@@ -113,11 +113,9 @@ export const UserDataProvider = ({ children }: UserDataProviderProps) => {
     const { data, error } = await supabase
       .from("sleep")
       .select("*")
-      .gte("time", cufoffStart)
-      .lte("time", cutOffEnd)
+      .gte("time", cutOffStart.toISOString())
+      .lte("time", cutOffEnd.toISOString())
       .match({ uid: session.id });
-
-    console.log("Sleep data: ", data);
 
     if (error) {
       return error;

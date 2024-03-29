@@ -1,4 +1,4 @@
-import { GlucoseData } from "../../Types";
+import { GlucoseData } from "../Types";
 
 export const getGlucoseDataForPeriod = (glucoseData: GlucoseData, startTime : Date, endTime : Date) : GlucoseData => {
   const formattedData = glucoseData.map((data) => {

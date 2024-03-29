@@ -87,7 +87,6 @@ export const UserDataProvider = ({ children }: UserDataProviderProps) => {
   };
 
   const fetchActivityData = async (session: UserDate) => {
-    console.log("userSession here is ", session);
     const { data, error } = await supabase
       .from("activities")
       .select("*")

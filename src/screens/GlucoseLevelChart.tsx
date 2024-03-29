@@ -13,14 +13,11 @@ import { Dimensions } from "react-native";
 import CustomButton from "../components/CustomButton";
 import FoodIcon from "../components/Icons/FoodIcon";
 import { StyleSheet } from "react-native";
-import { GlucoseData, GlucoseEvent } from "../../Types";
-import timestamps from "../../DummyData";
+import { GlucoseData, GlucoseEvent } from "../Types";
 import ReUsableModal from "../components/ReUsableModal";
 import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
 import { UserDataContext } from "../contexts/UserDataContext";
-import { ActivitySection } from "./Log";
-import ActivityIcon from "../components/Icons/ActivityIcon";
 import GraphActivityIcon from "../components/Icons/GraphActivityIcon";
 
 const timeFrameDict = {
@@ -37,7 +34,6 @@ const fetchServerData = async (param) => {
       `http://nodejs-production-ec50.up.railway.app/sync/${param}`
     );
     const data = await response.text(); // Assuming the response is plain text
-    console.log(data); // Handle the data as needed
   } catch (error) {
     console.error("Failed to fetch data:", error);
   }

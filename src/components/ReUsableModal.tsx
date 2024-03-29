@@ -29,7 +29,6 @@ const ReUsableModal = ({ modalState }: ReUsableModalProps) => {
   } = modalState;
 
   useEffect(() => {
-    console.log("isAddFoodModalVisible: ", isAddFoodModalVisible);
     if (isAddFoodModalVisible) {
       setActivityModalVisible(false);
       setSleepModalVisible(false);

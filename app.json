@@ -1,8 +1,7 @@
 {
   "expo": {
-    "entryPoint": "./index.ts",
-    "name": "stabilize-app",
-    "slug": "stabilize-app",
+    "name": "Stabilize",
+    "slug": "Stabilize",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,7 +16,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.stabilize"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +27,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6e3d6e5e-b946-4c29-9d9e-96c4080727d9"
+      }
     }
   }
 }

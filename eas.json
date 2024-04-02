@@ -24,6 +24,12 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "jakob.l.tolstrup@gmail.com",
+        "ascAppId": "6480310183",
+        "appleTeamId": "Y3JC3VTRJ9"
+      }
+    }
   }
 }

@@ -70,13 +70,13 @@ export const UserDataProvider = ({ children }: UserDataProviderProps) => {
   );
   twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
-  // We need to pass the data
   const fetchMealData = async (session: UserData) => {
+    const cutOffStart = new Date();
     const { data, error } = await supabase
       .from("meals")
       .select("*")
-      .gte("time", twoWeeksAgo)
-      .lte("time", new Date())
+      .gte("time", twoWeeksAgo.toISOString())
+      .lte("time", cutOffStart.toISOString())
       .match({ uid: session.id });
     if (error) {
       console.log("Error fetching meal data: ", error);
@@ -87,11 +87,12 @@ export const UserDataProvider = ({ children }: UserDataProviderProps) => {
   };
 
   const fetchActivityData = async (session: UserDate) => {
+    const cutOffStart = new Date();
     const { data, error } = await supabase
       .from("activities")
       .select("*")
-      .gte("time", twoWeeksAgo)
-      .lte("time", new Date())
+      .gte("time", twoWeeksAgo.toISOString())
+      .lte("time", cutOffStart.toISOString())
       .match({ uid: session.id });
     if (error) {
       console.log("Error fetching activity data: ", error);

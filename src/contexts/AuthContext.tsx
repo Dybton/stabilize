@@ -8,10 +8,12 @@ export type UserData = {
 
 type AuthContextType = {
   userSession: UserData;
+  loadingSession: boolean;
 };
 
 const defaultState: AuthContextType = {
   userSession: null,
+  loadingSession: true,
 };
 
 export const AuthContext = createContext(defaultState);
@@ -22,6 +24,7 @@ type AuthProviderProps = {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userSession, setUserSession] = useState<UserData | null>(null);
+  const [loadingSession, setLoadingSession] = useState(true);
 
   const formatSession = (session: any) => {
     return {
@@ -40,6 +43,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const formattedSession = formatSession(session);
         setUserSession(formattedSession);
       }
+      setLoadingSession(false);
     };
 
     getSession();
@@ -60,7 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ userSession }}>
+    <AuthContext.Provider value={{ userSession, loadingSession }}>
       {children}
     </AuthContext.Provider>
   );

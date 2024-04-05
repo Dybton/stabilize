@@ -21,12 +21,16 @@ export const StackNavigator = ({
   modalState,
   handlePresentModalPress,
 }: NavigatorProps) => {
-  const { session } = useContext(AuthContext);
+  const { userSession, loadingSession } = useContext(AuthContext);
   const Stack = createStackNavigator();
+
+  if (loadingSession) {
+    return null;
+  }
 
   return (
     <Stack.Navigator
-      initialRouteName={session ? "Graph" : "Auth"}
+      initialRouteName={!loadingSession && userSession ? "Graph" : "Auth"}
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name='Home'>

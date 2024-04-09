@@ -108,7 +108,7 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "white",
-    padding: 20,
+    padding: 30,
     borderRadius: 10,
     shadowOpacity: 0.25,
     shadowRadius: 5,

@@ -42,18 +42,23 @@ const Log = ({ modalState }) => {
   } = useContext(UserDataContext);
 
   useEffect(() => {
+    const midnight = new Date().setHours(0, 0, 0, 0);
     const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const startOfDate = new Date(midnight);
 
     const filteredMeals = mealDataFromContext.filter((meal) => {
       const mealTime = new Date(meal.time);
-      return mealTime >= oneDayAgo && mealTime <= now;
+      return mealTime >= startOfDate && mealTime <= now;
     });
+
+    console.log("filteredMeals  ", filteredMeals);
 
     const filteredActivities = activityDataFromContext.filter((activity) => {
       const activityTime = new Date(activity.time);
-      return activityTime >= oneDayAgo && activityTime <= now;
+      return activityTime >= startOfDate && activityTime <= now;
     });
+
+    console.log("filteredActivities  ", filteredActivities);
 
     sleepDataFromContext && setSleep(sleepDataFromContext);
     mealDataFromContext && setMeals(filteredMeals);

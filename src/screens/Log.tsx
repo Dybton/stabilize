@@ -58,8 +58,6 @@ const Log = ({ modalState }) => {
       return activityTime >= startOfDate && activityTime <= now;
     });
 
-    console.log("filteredActivities  ", filteredActivities);
-
     sleepDataFromContext && setSleep(sleepDataFromContext);
     mealDataFromContext && setMeals(filteredMeals);
     activityDataFromContext && setActivities(filteredActivities);
@@ -255,35 +253,37 @@ const MealsSection = ({ meals }) => {
     <View style={styles.section}>
       <Text style={styles.h2}>Meals</Text>
       {meals.map(
-        (meal: { description: string; time: number }, index: number) => (
-          <View
-            key={index}
-            style={{
-              ...styles.banner,
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
+        (meal: { description: string; time: number }, index: number) => {
+          return (
             <View
+              key={index}
               style={{
+                ...styles.banner,
                 flexDirection: "row",
+                justifyContent: "space-between",
                 alignItems: "center",
-                width: "80%",
               }}
             >
-              <FoodIconBasic />
-              <View style={{ marginLeft: 8 }}>
-                <Text numberOfLines={2}>{meal.description}</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  width: "80%",
+                }}
+              >
+                <FoodIconBasic />
+                <View style={{ marginLeft: 8 }}>
+                  <Text numberOfLines={2}>{meal.description}</Text>
+                </View>
+              </View>
+
+              <View style={{ alignItems: "flex-end" }}>
+                <Text>Time:</Text>
+                <Text>{formatTime(meal.time)}</Text>
               </View>
             </View>
-
-            <View style={{ alignItems: "flex-end" }}>
-              <Text>Time:</Text>
-              <Text>{formatTime(meal.time)}</Text>
-            </View>
-          </View>
-        )
+          );
+        }
       )}
     </View>
   );

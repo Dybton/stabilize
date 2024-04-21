@@ -19,6 +19,7 @@ import { supabase } from "../api/supabaseClient";
 import { AuthContext } from "../contexts/AuthContext";
 import { UserDataContext } from "../contexts/UserDataContext";
 import GraphActivityIcon from "../components/Icons/GraphActivityIcon";
+import { formatTime } from "../utils/formatTime";
 
 const timeFrameDict = {
   "12H": 12 * 60 * 60 * 1000,
@@ -234,25 +235,11 @@ export const GlucoseLevelChart = ({ modalState }) => {
               {chartData === glucoseTwelveHours ||
               chartData === glucoseTwentyFourHours ? (
                 <Text style={{ fontSize: 20 }}>
-                  {cursorValue &&
-                    new Date(cursorValue.x).toLocaleTimeString("en-US", {
-                      hour12: false,
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
+                  {cursorValue && formatTime(cursorValue.x)}
                 </Text>
               ) : (
                 <Text style={{ fontSize: 20, position: "absolute" }}>
-                  {cursorValue &&
-                    new Date(cursorValue.x).toLocaleDateString("en-US", {
-                      hour12: false,
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                  {cursorValue && formatTime(cursorValue.x)}
                 </Text>
               )}
             </Text>

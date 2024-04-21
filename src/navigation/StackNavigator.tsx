@@ -31,7 +31,7 @@ export const StackNavigator = ({
   return (
     <Stack.Navigator
       initialRouteName={!loadingSession && userSession ? "Graph" : "Auth"}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, gestureEnabled: false }}
     >
       <Stack.Screen name='Home'>
         {(props) => (

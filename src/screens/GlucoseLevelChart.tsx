@@ -299,7 +299,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
             <VictoryLine
               data={chartData}
               y={(datum) => datum.y}
-              interpolation='natural'
+              interpolation='linear'
             />
             {cursorValue && pressed && chartData.length > 0 && (
               <VictoryScatter

@@ -19,6 +19,7 @@ import { TouchableOpacity } from "react-native";
 import Profile from "../components/Profile";
 import ReUsableModal from "../components/ReUsableModal";
 import { UserDataContext } from "../contexts/UserDataContext";
+import { ArrowIcon } from "../components/Icons/ArrowIcon";
 
 type Sleep = {
   created_at: string;
@@ -89,8 +90,31 @@ const Log = ({ modalState }) => {
           style={{ flexDirection: "row", width: "95%", alignSelf: "center" }}
         >
           <View style={{ flex: 1 }}></View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.h1}>Today</Text>
+          <View
+            style={{
+              flex: 1,
+              // justifyContent: "center",
+              // alignItems: "center",
+              height: 70,
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <View style={{ marginBottom: 5, marginRight: 10 }}>
+                <ArrowIcon />
+              </View>
+
+              <Text style={styles.h1}>Today</Text>
+              {/* <Text style={styles.h2}>28/04/2024</Text> */}
+              {/* <View style={{ marginBottom: 5, marginLeft: 10 }}>
+                <ArrowIcon />
+              </View> */}
+            </View>
           </View>
           <View
             style={{

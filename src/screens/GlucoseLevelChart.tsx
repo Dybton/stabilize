@@ -84,7 +84,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
   const [pressed, setPressed] = useState(false);
   const [timeframe, setTimeframe] = useState<string>("12H");
   const [selectedEvent, setSelectedEvent] = useState(null);
-
   const [glucoseTwelveHours, setGlucoseTwelveHours] = useState([]);
   const [glucoseTwentyFourHours, setGlucoseTwentyFourHours] = useState([]);
   const [glucoseThreeDays, setGlucoseThreeDays] = useState([]);
@@ -96,14 +95,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
     x: number;
     y: number | undefined;
   }>();
-
-  useEffect(() => {
-    console.log({ userSession });
-  }, [userSession]);
-
-  // useEffect(() => {
-  //   fetchServerData("90775c87-722a-11ed-9da8-0242ac110005");
-  // }, []);
 
   const changeData = (data: GlucoseData) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -155,7 +146,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
 
   const fetchGlucoseMeasurements = async () => {
     if (!userSession) return;
-
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("patient_id")
@@ -315,7 +305,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
             <VictoryLine
               data={chartData}
               y={(datum) => datum.y}
-              interpolation='linear'
+              interpolation='basis'
             />
             {cursorValue && pressed && chartData.length > 0 && (
               <VictoryScatter

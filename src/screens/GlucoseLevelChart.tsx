@@ -29,12 +29,17 @@ const timeFrameDict = {
   "14D": 14 * 24 * 60 * 60 * 1000,
 };
 
-const fetchServerData = async (param) => {
+const fetchServerData = async (param: string) => {
+  const url = `http://nodejs-production-ec50.up.railway.app/sync/${param}`;
+  console.log(`Fetching data from: ${url}`);
   try {
-    const response = await fetch(
-      `http://nodejs-production-ec50.up.railway.app/sync/${param}`
-    );
-    const data = await response.text(); // Assuming the response is plain text
+    const response = await fetch(url);
+    const data = await response.text();
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}, body: ${data}`);
+    }
+    console.log("Data fetched from server:", data);
+    return data; // Assuming you might want to use this data
   } catch (error) {
     console.error("Failed to fetch data:", error);
   }
@@ -55,20 +60,31 @@ const findClosestPoint = (data: GlucoseData, value: GlucoseEvent) => {
   return closestPoint;
 };
 
-export const GlucoseLevelChart = ({ modalState }) => {
-  const yesterDay = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-  const today = new Date();
-  const startOfDay = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
+const filterDataByTimestamp = (
+  timestamp: number,
+  data: { glucose_level: number; measurement_timestamp: string }[]
+) => {
+  return data
+    .filter((item) => {
+      const itemTimestamp = new Date(item.measurement_timestamp).getTime();
+      return itemTimestamp >= timestamp;
+    })
+    .map((item) => ({
+      y: item.glucose_level,
+      x: new Date(item.measurement_timestamp).getTime(),
+    }))
+    .sort((a, b) => a.x - b.x);
+};
 
+export const GlucoseLevelChart = ({ modalState }) => {
   const { userSession } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState([]);
+  const [formattedEvents, setFormattedEvents] = useState([]);
   const [pressed, setPressed] = useState(false);
   const [timeframe, setTimeframe] = useState<string>("12H");
   const [selectedEvent, setSelectedEvent] = useState(null);
+
   const [glucoseTwelveHours, setGlucoseTwelveHours] = useState([]);
   const [glucoseTwentyFourHours, setGlucoseTwentyFourHours] = useState([]);
   const [glucoseThreeDays, setGlucoseThreeDays] = useState([]);
@@ -81,12 +97,18 @@ export const GlucoseLevelChart = ({ modalState }) => {
     y: number | undefined;
   }>();
 
+  useEffect(() => {
+    console.log({ userSession });
+  }, [userSession]);
+
+  // useEffect(() => {
+  //   fetchServerData("90775c87-722a-11ed-9da8-0242ac110005");
+  // }, []);
+
   const changeData = (data: GlucoseData) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setChartData(data);
   };
-
-  const [formattedEvents, setFormattedEvents] = useState([]);
 
   const { meals: mealDataFromContext, activities: activityDataFromContext } =
     useContext(UserDataContext);
@@ -133,6 +155,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
 
   const fetchGlucoseMeasurements = async () => {
     if (!userSession) return;
+
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("patient_id")
@@ -144,23 +167,8 @@ export const GlucoseLevelChart = ({ modalState }) => {
       return;
     }
 
-    userData.patient_id && fetchServerData(userData.patient_id);
-
-    const filterDataByTimestamp = (
-      timestamp: number,
-      data: { glucose_level: number; measurement_timestamp: string }[]
-    ) => {
-      return data
-        .filter((item) => {
-          const itemTimestamp = new Date(item.measurement_timestamp).getTime();
-          return itemTimestamp >= timestamp;
-        })
-        .map((item) => ({
-          y: item.glucose_level,
-          x: new Date(item.measurement_timestamp).getTime(),
-        }))
-        .sort((a, b) => a.x - b.x);
-    };
+    userData.patient_id &&
+      (await fetchServerData("90775c87-722a-11ed-9da8-0242ac110005"));
 
     const { data: glucoseMeasurements, error: glucoseError } = await supabase
       .from("glucose_measurements")
@@ -202,6 +210,8 @@ export const GlucoseLevelChart = ({ modalState }) => {
       setGlucoseThreeDays(threeDaysData);
       setGlucoseSevenDays(sevenDaysData);
       setGlucoseFourteenDays(fourteenDaysData);
+
+      setChartData(twelveHoursData);
     }
   };
 
@@ -210,12 +220,20 @@ export const GlucoseLevelChart = ({ modalState }) => {
   }, []);
 
   useEffect(() => {
+    if (glucoseTwelveHours.length > 0) setLoading(false);
+  }, [glucoseTwelveHours]);
+
+  useEffect(() => {
     if (chartData.length > 0) {
       const val = chartData[chartData.length - 1].x;
       if (!cursorValue)
         setCursorValue({ x: val ?? 0, y: chartData[chartData.length - 1].y });
     }
   }, [cursorValue, chartData]);
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <>
@@ -228,8 +246,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
       >
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <View style={{ flex: 1 }}>
-            {/* <Text style={{ textAlign: 'center' }}>12 Hour Average</Text>
-            <Text style={{ textAlign: 'center' }}><Text style={{fontSize: 20}}>{averageGL.toFixed(1)}</Text> mmol/L</Text> */}
             <Text style={{ textAlign: "center" }}>Time:</Text>
             <Text style={{ textAlign: "center" }}>
               {chartData === glucoseTwelveHours ||

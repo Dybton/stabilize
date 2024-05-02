@@ -46,12 +46,6 @@ const Log = ({ modalState }) => {
     activities: activityDataFromContext,
   } = useContext(UserDataContext);
 
-  useEffect(() => {
-    console.log("mealDataFromContext ", mealDataFromContext);
-  }, [mealDataFromContext]);
-
-  // This filter function needs to take a date, and with this data we should be able to get the data
-
   const decrementDate = () => {
     setDate(new Date(date.setDate(date.getDate() - 1)));
   };
@@ -61,24 +55,28 @@ const Log = ({ modalState }) => {
   };
 
   useEffect(() => {
-    const midnight = new Date().setHours(0, 0, 0, 0);
-    const now = new Date();
-    const startOfDate = new Date(midnight);
+    const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(date.setHours(23, 59, 59, 999));
 
     const filteredMeals = mealDataFromContext.filter((meal) => {
       const mealTime = new Date(meal.time);
-      return mealTime >= startOfDate && mealTime <= now;
+      return mealTime >= startOfDay && mealTime <= endOfDay;
     });
 
     const filteredActivities = activityDataFromContext.filter((activity) => {
       const activityTime = new Date(activity.time);
-      return activityTime >= startOfDate && activityTime <= now;
+      return activityTime >= startOfDay && activityTime <= endOfDay;
     });
 
     sleepDataFromContext && setSleep(sleepDataFromContext);
     mealDataFromContext && setMeals(filteredMeals);
     activityDataFromContext && setActivities(filteredActivities);
-  }, [sleepDataFromContext, mealDataFromContext, activityDataFromContext]);
+  }, [
+    sleepDataFromContext,
+    mealDataFromContext,
+    activityDataFromContext,
+    date,
+  ]);
 
   return (
     <>

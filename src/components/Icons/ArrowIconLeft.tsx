@@ -1,6 +1,6 @@
 import { Svg, Path } from "react-native-svg";
 
-export const ArrowIcon = ({ color = "black" }) => {
+export const ArrowIconLeft = ({ color = "black", rotate = false }) => {
   return (
     <Svg width='12' height='18' viewBox='0 0 24 24' fill='none'>
       <Path

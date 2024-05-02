@@ -19,7 +19,10 @@ import { TouchableOpacity } from "react-native";
 import Profile from "../components/Profile";
 import ReUsableModal from "../components/ReUsableModal";
 import { UserDataContext } from "../contexts/UserDataContext";
-import { ArrowIcon } from "../components/Icons/ArrowIcon";
+import { formatDate } from "../utils/formatDate";
+import { compareDates } from "../utils/compareDate";
+import { ArrowIconLeft } from "../components/Icons/ArrowIconLeft";
+import { ArrowIconRight } from "../components/Icons/ArrowIconRight";
 
 type Sleep = {
   created_at: string;
@@ -35,12 +38,27 @@ const Log = ({ modalState }) => {
   const [meals, setMeals] = React.useState(null);
   const [activities, setActivities] = React.useState(null);
   const [profileModalVisible, setProfileModalVisible] = React.useState(false);
+  const [date, setDate] = React.useState(new Date());
 
   const {
     sleep: sleepDataFromContext,
     meals: mealDataFromContext,
     activities: activityDataFromContext,
   } = useContext(UserDataContext);
+
+  useEffect(() => {
+    console.log("mealDataFromContext ", mealDataFromContext);
+  }, [mealDataFromContext]);
+
+  // This filter function needs to take a date, and with this data we should be able to get the data
+
+  const decrementDate = () => {
+    setDate(new Date(date.setDate(date.getDate() - 1)));
+  };
+
+  const incrementDate = () => {
+    setDate(new Date(date.setDate(date.getDate() + 1)));
+  };
 
   useEffect(() => {
     const midnight = new Date().setHours(0, 0, 0, 0);
@@ -51,8 +69,6 @@ const Log = ({ modalState }) => {
       const mealTime = new Date(meal.time);
       return mealTime >= startOfDate && mealTime <= now;
     });
-
-    console.log("filteredMeals  ", filteredMeals);
 
     const filteredActivities = activityDataFromContext.filter((activity) => {
       const activityTime = new Date(activity.time);
@@ -90,32 +106,11 @@ const Log = ({ modalState }) => {
           style={{ flexDirection: "row", width: "95%", alignSelf: "center" }}
         >
           <View style={{ flex: 1 }}></View>
-          <View
-            style={{
-              flex: 1,
-              // justifyContent: "center",
-              // alignItems: "center",
-              height: 70,
-            }}
-          >
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <View style={{ marginBottom: 5, marginRight: 10 }}>
-                <ArrowIcon />
-              </View>
-
-              <Text style={styles.h1}>Today</Text>
-              {/* <Text style={styles.h2}>28/04/2024</Text> */}
-              {/* <View style={{ marginBottom: 5, marginLeft: 10 }}>
-                <ArrowIcon />
-              </View> */}
-            </View>
-          </View>
+          <LogHeader
+            date={date}
+            decrementDate={decrementDate}
+            incrementDate={incrementDate}
+          />
           <View
             style={{
               flex: 1,
@@ -255,6 +250,58 @@ export const ActivitySection = ({ activities }) => {
           </View>
         )
       )}
+    </View>
+  );
+};
+
+const LogHeader = ({ date, decrementDate, incrementDate }) => {
+  const isToday = compareDates(date, new Date()) === 0;
+
+  return (
+    <View>
+      <View
+        style={{
+          width: 180,
+          marginTop: 10,
+          flex: 1,
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <TouchableOpacity
+          onPress={decrementDate}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "flex-start",
+            minHeight: 50, // Ensure minimum height for the container
+          }}
+        >
+          <ArrowIconLeft />
+        </TouchableOpacity>
+        <Text
+          style={[
+            styles.h2,
+            { flex: 1, textAlign: "center", position: "absolute" },
+          ]}
+        >
+          {formatDate(date)}
+        </Text>
+
+        {!isToday && (
+          <TouchableOpacity
+            onPress={incrementDate}
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "flex-end",
+            }}
+          >
+            <ArrowIconRight />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };

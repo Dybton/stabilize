@@ -152,18 +152,21 @@ export const GlucoseLevelChart = ({ modalState }) => {
       .eq("user_id", userSession.id)
       .single();
 
+    console.log("userData", userData);
+
     if (userError || !userData) {
       console.log("Error fetching user or no user data: ", userError);
       return;
     }
 
-    userData.patient_id &&
-      (await fetchServerData("90775c87-722a-11ed-9da8-0242ac110005"));
+    userData.patient_id && (await fetchServerData(userData.patient_id));
 
     const { data: glucoseMeasurements, error: glucoseError } = await supabase
       .from("glucose_measurements")
       .select("glucose_level, measurement_timestamp")
       .eq("patient_id", userData.patient_id);
+
+    console.log("glucoseMeasurements", glucoseMeasurements);
 
     if (glucoseError) {
       console.log("Error fetching glucose measurements: ", glucoseError);
@@ -210,7 +213,12 @@ export const GlucoseLevelChart = ({ modalState }) => {
   }, []);
 
   useEffect(() => {
-    if (glucoseTwelveHours.length > 0) setLoading(false);
+    if (
+      glucoseTwelveHours.length > 0 ||
+      glucoseTwelveHours.length ||
+      glucoseFourteenDays.length > 0
+    )
+      setLoading(false);
   }, [glucoseTwelveHours]);
 
   useEffect(() => {
@@ -268,8 +276,8 @@ export const GlucoseLevelChart = ({ modalState }) => {
           <VictoryChart
             domainPadding={{
               y: [
-                Dimensions.get("window").height * 0.5,
-                Dimensions.get("window").height * 0.1,
+                Dimensions.get("window").height,
+                Dimensions.get("window").height,
               ],
             }}
             width={Dimensions.get("window").width}

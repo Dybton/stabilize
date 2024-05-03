@@ -168,58 +168,59 @@ export const GlucoseLevelChart = ({ modalState }) => {
 
     console.log("glucoseMeasurements", glucoseMeasurements);
 
-    if (glucoseError) {
-      console.log("Error fetching glucose measurements: ", glucoseError);
-    } else {
-      const twelveHoursAgo = new Date().getTime() - 12 * 60 * 60 * 1000;
-      const twentyFourHoursAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
-      const threeDaysAgo = new Date().getTime() - 3 * 24 * 60 * 60 * 1000;
-      const sevenDaysAgo = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
-      const fourteenDaysAgo = new Date().getTime() - 14 * 24 * 60 * 60 * 1000;
+    //   if (glucoseError) {
+    //     console.log("Error fetching glucose measurements: ", glucoseError);
+    //   } else {
+    //     const twelveHoursAgo = new Date().getTime() - 12 * 60 * 60 * 1000;
+    //     const twentyFourHoursAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
+    //     const threeDaysAgo = new Date().getTime() - 3 * 24 * 60 * 60 * 1000;
+    //     const sevenDaysAgo = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
+    //     const fourteenDaysAgo = new Date().getTime() - 14 * 24 * 60 * 60 * 1000;
 
-      const twelveHoursData = filterDataByTimestamp(
-        twelveHoursAgo,
-        glucoseMeasurements
-      );
-      const twentyFourHoursData = filterDataByTimestamp(
-        twentyFourHoursAgo,
-        glucoseMeasurements
-      );
-      const threeDaysData = filterDataByTimestamp(
-        threeDaysAgo,
-        glucoseMeasurements
-      );
-      const sevenDaysData = filterDataByTimestamp(
-        sevenDaysAgo,
-        glucoseMeasurements
-      );
-      const fourteenDaysData = filterDataByTimestamp(
-        fourteenDaysAgo,
-        glucoseMeasurements
-      );
+    //     const twelveHoursData = filterDataByTimestamp(
+    //       twelveHoursAgo,
+    //       glucoseMeasurements
+    //     );
+    //     const twentyFourHoursData = filterDataByTimestamp(
+    //       twentyFourHoursAgo,
+    //       glucoseMeasurements
+    //     );
+    //     const threeDaysData = filterDataByTimestamp(
+    //       threeDaysAgo,
+    //       glucoseMeasurements
+    //     );
+    //     const sevenDaysData = filterDataByTimestamp(
+    //       sevenDaysAgo,
+    //       glucoseMeasurements
+    //     );
+    //     const fourteenDaysData = filterDataByTimestamp(
+    //       fourteenDaysAgo,
+    //       glucoseMeasurements
+    //     );
 
-      setGlucoseTwelveHours(twelveHoursData);
-      setGlucoseTwentyFourHours(twentyFourHoursData);
-      setGlucoseThreeDays(threeDaysData);
-      setGlucoseSevenDays(sevenDaysData);
-      setGlucoseFourteenDays(fourteenDaysData);
+    //     setGlucoseTwelveHours(twelveHoursData);
+    //     setGlucoseTwentyFourHours(twentyFourHoursData);
+    //     setGlucoseThreeDays(threeDaysData);
+    //     setGlucoseSevenDays(sevenDaysData);
+    //     setGlucoseFourteenDays(fourteenDaysData);
 
-      setChartData(twelveHoursData);
-    }
+    //     setChartData(twelveHoursData);
+    //   }
+    // };
+
+    // useEffect(() => {
+    //   fetchGlucoseMeasurements();
+    // }, []);
+
+    // useEffect(() => {
+    //   if (
+    //     glucoseTwelveHours.length > 0 ||
+    //     glucoseTwelveHours.length ||
+    //     glucoseFourteenDays.length > 0
+    //   )
+    //     setLoading(false);
+    // }, [glucoseTwelveHours]);
   };
-
-  useEffect(() => {
-    fetchGlucoseMeasurements();
-  }, []);
-
-  useEffect(() => {
-    if (
-      glucoseTwelveHours.length > 0 ||
-      glucoseTwelveHours.length ||
-      glucoseFourteenDays.length > 0
-    )
-      setLoading(false);
-  }, [glucoseTwelveHours]);
 
   useEffect(() => {
     if (chartData.length > 0) {
@@ -229,13 +230,13 @@ export const GlucoseLevelChart = ({ modalState }) => {
     }
   }, [cursorValue, chartData]);
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <View style={styles.loadingContainer}>
+  //       <Text style={styles.loadingText}>Loading...</Text>
+  //     </View>
+  //   );
+  // }
 
   return (
     <>

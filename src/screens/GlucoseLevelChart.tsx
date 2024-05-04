@@ -20,6 +20,8 @@ import { AuthContext } from "../contexts/AuthContext";
 import { UserDataContext } from "../contexts/UserDataContext";
 import GraphActivityIcon from "../components/Icons/GraphActivityIcon";
 import { formatTime } from "../utils/formatTime";
+import { AppState } from "react-native";
+import { formatDate } from "../utils/formatDate";
 
 const timeFrameDict = {
   "12H": 12 * 60 * 60 * 1000,
@@ -87,8 +89,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
   const [glucoseTwelveHours, setGlucoseTwelveHours] = useState([]);
   const [glucoseTwentyFourHours, setGlucoseTwentyFourHours] = useState([]);
   const [glucoseThreeDays, setGlucoseThreeDays] = useState([]);
-  const [glucoseSevenDays, setGlucoseSevenDays] = useState([]);
-  const [glucoseFourteenDays, setGlucoseFourteenDays] = useState([]);
+  const [appState, setAppState] = useState(AppState.currentState);
 
   const [chartData, setChartData] = useState([]);
   const [cursorValue, setCursorValue] = useState<{
@@ -152,8 +153,6 @@ export const GlucoseLevelChart = ({ modalState }) => {
       .eq("user_id", userSession.id)
       .single();
 
-    console.log("userData", userData);
-
     if (userError || !userData) {
       console.log("Error fetching user or no user data: ", userError);
       return;
@@ -161,66 +160,63 @@ export const GlucoseLevelChart = ({ modalState }) => {
 
     userData.patient_id && (await fetchServerData(userData.patient_id));
 
+    const seventyTwoHoursAgo = new Date(
+      new Date().getTime() - 72 * 60 * 60 * 1000
+    ).toISOString();
+
     const { data: glucoseMeasurements, error: glucoseError } = await supabase
       .from("glucose_measurements")
       .select("glucose_level, measurement_timestamp")
-      .eq("patient_id", userData.patient_id);
+      .eq("patient_id", userData.patient_id)
+      .gte("measurement_timestamp", seventyTwoHoursAgo);
 
-    console.log("glucoseMeasurements", glucoseMeasurements);
+    if (glucoseError) {
+      console.log("Error fetching glucose measurements: ", glucoseError);
+    } else {
+      const twelveHoursAgo = new Date().getTime() - 12 * 60 * 60 * 1000;
+      const twentyFourHoursAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
+      const threeDaysAgo = new Date().getTime() - 3 * 24 * 60 * 60 * 1000;
+      const twelveHoursData = filterDataByTimestamp(
+        twelveHoursAgo,
+        glucoseMeasurements
+      );
+      const twentyFourHoursData = filterDataByTimestamp(
+        twentyFourHoursAgo,
+        glucoseMeasurements
+      );
+      const threeDaysData = filterDataByTimestamp(
+        threeDaysAgo,
+        glucoseMeasurements
+      );
 
-    //   if (glucoseError) {
-    //     console.log("Error fetching glucose measurements: ", glucoseError);
-    //   } else {
-    //     const twelveHoursAgo = new Date().getTime() - 12 * 60 * 60 * 1000;
-    //     const twentyFourHoursAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
-    //     const threeDaysAgo = new Date().getTime() - 3 * 24 * 60 * 60 * 1000;
-    //     const sevenDaysAgo = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
-    //     const fourteenDaysAgo = new Date().getTime() - 14 * 24 * 60 * 60 * 1000;
-
-    //     const twelveHoursData = filterDataByTimestamp(
-    //       twelveHoursAgo,
-    //       glucoseMeasurements
-    //     );
-    //     const twentyFourHoursData = filterDataByTimestamp(
-    //       twentyFourHoursAgo,
-    //       glucoseMeasurements
-    //     );
-    //     const threeDaysData = filterDataByTimestamp(
-    //       threeDaysAgo,
-    //       glucoseMeasurements
-    //     );
-    //     const sevenDaysData = filterDataByTimestamp(
-    //       sevenDaysAgo,
-    //       glucoseMeasurements
-    //     );
-    //     const fourteenDaysData = filterDataByTimestamp(
-    //       fourteenDaysAgo,
-    //       glucoseMeasurements
-    //     );
-
-    //     setGlucoseTwelveHours(twelveHoursData);
-    //     setGlucoseTwentyFourHours(twentyFourHoursData);
-    //     setGlucoseThreeDays(threeDaysData);
-    //     setGlucoseSevenDays(sevenDaysData);
-    //     setGlucoseFourteenDays(fourteenDaysData);
-
-    //     setChartData(twelveHoursData);
-    //   }
-    // };
-
-    // useEffect(() => {
-    //   fetchGlucoseMeasurements();
-    // }, []);
-
-    // useEffect(() => {
-    //   if (
-    //     glucoseTwelveHours.length > 0 ||
-    //     glucoseTwelveHours.length ||
-    //     glucoseFourteenDays.length > 0
-    //   )
-    //     setLoading(false);
-    // }, [glucoseTwelveHours]);
+      setGlucoseTwelveHours(twelveHoursData);
+      setGlucoseTwentyFourHours(twentyFourHoursData);
+      setGlucoseThreeDays(threeDaysData);
+      setChartData(twelveHoursData);
+    }
   };
+
+  useEffect(() => {
+    fetchGlucoseMeasurements();
+  }, []);
+
+  useEffect(() => {
+    AppState.addEventListener("change", (nextAppState) => {
+      if (appState.match(/inactive|background/) && nextAppState === "active") {
+        fetchGlucoseMeasurements();
+      }
+      setAppState(nextAppState);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (
+      glucoseTwelveHours.length > 0 ||
+      glucoseTwentyFourHours.length > 0 ||
+      glucoseThreeDays.length > 0
+    )
+      setLoading(false);
+  }, [glucoseTwelveHours]);
 
   useEffect(() => {
     if (chartData.length > 0) {
@@ -230,13 +226,13 @@ export const GlucoseLevelChart = ({ modalState }) => {
     }
   }, [cursorValue, chartData]);
 
-  // if (loading) {
-  //   return (
-  //     <View style={styles.loadingContainer}>
-  //       <Text style={styles.loadingText}>Loading...</Text>
-  //     </View>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <>
@@ -249,19 +245,16 @@ export const GlucoseLevelChart = ({ modalState }) => {
       >
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ textAlign: "center" }}>Time:</Text>
-            <Text style={{ textAlign: "center" }}>
-              {chartData === glucoseTwelveHours ||
-              chartData === glucoseTwentyFourHours ? (
-                <Text style={{ fontSize: 20 }}>
-                  {cursorValue && formatTime(cursorValue.x)}
-                </Text>
-              ) : (
-                <Text style={{ fontSize: 20, position: "absolute" }}>
-                  {cursorValue && formatTime(cursorValue.x)}
-                </Text>
-              )}
-            </Text>
+            <Text style={{ textAlign: "center" }}>Measurement Time:</Text>
+
+            <View style={{ alignItems: "center" }}>
+              <Text style={{ fontSize: 20 }}>
+                {cursorValue && formatTime(cursorValue.x)}
+              </Text>
+              <Text style={{ fontSize: 20 }}>
+                {cursorValue && formatDate(cursorValue.x, false)}
+              </Text>
+            </View>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ textAlign: "center" }}>Glucose level: </Text>
@@ -311,10 +304,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
               />
             }
           >
-            <VictoryAxis
-              // style={{ axis: { stroke: "none" } }}
-              tickFormat={() => null}
-            />
+            <VictoryAxis tickFormat={() => null} />
             <VictoryLine
               data={chartData}
               y={(datum) => datum.y}
@@ -389,21 +379,7 @@ export const GlucoseLevelChart = ({ modalState }) => {
           <CustomButton
             data={glucoseThreeDays}
             handleClick={changeData}
-            text={"3D"}
-            timeframe={timeframe}
-            setTimeframe={setTimeframe}
-          />
-          <CustomButton
-            data={glucoseSevenDays}
-            handleClick={changeData}
-            text={"7D"}
-            timeframe={timeframe}
-            setTimeframe={setTimeframe}
-          />
-          <CustomButton
-            data={glucoseFourteenDays}
-            handleClick={changeData}
-            text={"14D"}
+            text={"72H"}
             timeframe={timeframe}
             setTimeframe={setTimeframe}
           />

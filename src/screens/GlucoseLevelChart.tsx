@@ -201,11 +201,11 @@ export const GlucoseLevelChart = ({ modalState }) => {
   }, []);
 
   useEffect(() => {
-    AppState.addEventListener("change", (nextAppState) => {
-      if (appState.match(/inactive|background/) && nextAppState === "active") {
+    AppState.addEventListener("change", (state) => {
+      if (state === "active") {
         fetchGlucoseMeasurements();
       }
-      setAppState(nextAppState);
+      setAppState(state);
     });
   }, []);
 

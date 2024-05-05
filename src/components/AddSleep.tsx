@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -21,15 +21,34 @@ import { UserDataContext } from "../contexts/UserDataContext";
 
 type AddSleepProps = {
   setSleepModalVisible: (val: boolean) => void;
+  currentSleep: any; // add a type here
+  setCurrentSleep: (val: any) => void; // add a type here
 };
 
-const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
+const AddSleep = ({
+  setSleepModalVisible,
+  currentSleep,
+  setCurrentSleep,
+}: AddSleepProps) => {
   const [timestamp, setTimestamp] = useState(new Date());
   const [duration, setDuration] = useState(0);
   const [sleepQuality, setSleepQuality] = useState(0);
+  const [durationSliderValue, setDurationSliderValue] = useState(0);
+  const [qualitySliderValue, setQualitySliderValue] = useState(0);
+  const { refreshSleepData } = useContext(UserDataContext);
 
   const { userSession } = useContext(AuthContext);
-  const { refreshSleepData } = useContext(UserDataContext);
+
+  useEffect(() => {
+    if (currentSleep) {
+      console.log("currentSleep: ", currentSleep);
+      setDuration(currentSleep.duration);
+      setSleepQuality(currentSleep.quality);
+      setTimestamp(new Date(currentSleep.time));
+      setDurationSliderValue(currentSleep.duration);
+      setQualitySliderValue(currentSleep.quality);
+    }
+  }, [currentSleep]);
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate;
@@ -37,18 +56,34 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
   };
 
   const handleSaveAndExit = async () => {
-    const { data, error } = await supabase.from("sleep").insert([
-      {
-        time: timestamp,
-        duration,
-        quality: sleepQuality,
-        uid: userSession.id,
-      },
-    ]);
+    if (!userSession) return;
+    let result; // add a type here
+
+    if (currentSleep) {
+      result = await supabase
+        .from("sleep")
+        .update({
+          time: timestamp,
+          duration,
+          quality: sleepQuality,
+        })
+        .match({ id: currentSleep.id });
+    } else {
+      result = await supabase.from("sleep").insert([
+        {
+          time: timestamp,
+          duration,
+          quality: sleepQuality,
+          uid: userSession.id,
+        },
+      ]);
+    }
+    const { data, error } = result;
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
       setSleepModalVisible(false);
+      setCurrentSleep(null);
       refreshSleepData(userSession);
     }
   };
@@ -57,13 +92,18 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
     <View style={styles.card}>
       <TouchableOpacity
         style={styles.closeButton}
-        onPress={() => setSleepModalVisible(false)}
+        onPress={() => {
+          setSleepModalVisible(false);
+          setCurrentSleep(null);
+        }}
       >
         <Text style={styles.closeButtonText}>×</Text>
       </TouchableOpacity>
-      <Text style={styles.title}>Sleep</Text>
-
+      <Text style={styles.title}>
+        {currentSleep ? "Edit your sleep" : "Enter your sleep"}
+      </Text>
       <Text style={styles.label}>Bedtime</Text>
+
       <DateTimePicker
         value={timestamp}
         onChange={onChange}
@@ -81,7 +121,11 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
         style={{ height: 40 }}
         minimumValue={0}
         maximumValue={600}
-        onValueChange={(val) => setDuration(val)}
+        onValueChange={(val) => {
+          setDuration(val);
+          setDurationSliderValue(val);
+        }}
+        value={durationSliderValue}
       />
       <Text style={styles.label}>Sleep Quality</Text>
       <Text>{parseSleepQuality(sleepQuality)}</Text>
@@ -89,7 +133,11 @@ const AddSleep = ({ setSleepModalVisible }: AddSleepProps) => {
         style={{ height: 40 }}
         minimumValue={0}
         maximumValue={5}
-        onValueChange={(val) => setSleepQuality(val)}
+        onValueChange={(val) => {
+          setSleepQuality(val);
+          setQualitySliderValue(val);
+        }}
+        value={qualitySliderValue}
       />
 
       <View style={styles.buttonContainer}>

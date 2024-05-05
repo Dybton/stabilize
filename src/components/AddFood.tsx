@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,9 +16,15 @@ import { UserDataContext } from "../contexts/UserDataContext";
 
 type AddFoodProps = {
   setAddFoodModalVisible: (val: boolean) => void;
+  currentMeal: any; // add a type here
+  setCurrentMeal: (val: any) => void; // add a type here
 };
 
-const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
+const AddFood = ({
+  setAddFoodModalVisible,
+  currentMeal,
+  setCurrentMeal,
+}: AddFoodProps) => {
   const [meal, setMeal] = useState("");
   const [timestamp, setTimestamp] = useState(new Date());
   const { refreshMeals } = useContext(UserDataContext);
@@ -32,13 +38,27 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
 
   const handleSaveAndExit = async () => {
     if (!userSession) return;
-    const { data, error } = await supabase
-      .from("meals")
-      .insert([{ time: timestamp, description: meal, uid: userSession.id }]);
+    let result; // add a type here
+
+    if (currentMeal) {
+      result = await supabase
+        .from("meals")
+        .update({
+          time: timestamp,
+          description: meal,
+        })
+        .match({ id: currentMeal.id });
+    } else {
+      result = await supabase
+        .from("meals")
+        .insert([{ time: timestamp, description: meal, uid: userSession.id }]);
+    }
+    const { data, error } = result;
     if (error) {
       console.log("Error saving meal: ", error);
     } else {
       setAddFoodModalVisible(false);
+      setCurrentMeal(null);
       refreshMeals(userSession);
     }
   };
@@ -56,15 +76,28 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
     }
   };
 
+  useEffect(() => {
+    if (currentMeal) {
+      setMeal(currentMeal.description);
+      setTimestamp(new Date(currentMeal.time));
+    }
+  }, [currentMeal]);
+
   return (
     <View style={styles.card}>
       <TouchableOpacity
         style={styles.closeButton}
-        onPress={() => setAddFoodModalVisible(false)}
+        onPress={() => {
+          setAddFoodModalVisible(false);
+          setCurrentMeal(null);
+        }}
       >
         <Text style={styles.closeButtonText}>×</Text>
       </TouchableOpacity>
-      <Text style={styles.title}>Enter your meal</Text>
+      <Text style={styles.title}>
+        {currentMeal ? "Edit your meal" : "Enter your meal"}
+      </Text>
+
       <Text style={styles.label}>Meal</Text>
       <TextInput
         style={{ ...styles.input, height: "30%" }}
@@ -93,13 +126,16 @@ const AddFood = ({ setAddFoodModalVisible }: AddFoodProps) => {
         >
           <Text>Save & Exit</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSaveAndAddAnother}
-          disabled={!meal}
-        >
-          <Text>Save & Add Another</Text>
-        </TouchableOpacity>
+
+        {!currentMeal && (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSaveAndAddAnother}
+            disabled={!meal}
+          >
+            <Text>Save & Add Another</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

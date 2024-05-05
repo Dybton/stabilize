@@ -31,6 +31,9 @@ export default function App() {
   const [isAddFoodModalVisible, setAddFoodModalVisible] = useState(false);
   const [isActivityModalVisible, setActivityModalVisible] = useState(false);
   const [isSleepModalVisible, setSleepModalVisible] = useState(false);
+  const [currentActivity, setCurrentActivity] = useState();
+  const [currentMeal, setCurrentMeal] = useState();
+  const [currentSleep, setCurrentSleep] = useState();
   const bottomSheetModalRef = useRef(null);
 
   const modalState = {
@@ -40,6 +43,12 @@ export default function App() {
     setActivityModalVisible,
     isSleepModalVisible,
     setSleepModalVisible,
+    currentActivity,
+    setCurrentActivity,
+    currentMeal,
+    setCurrentMeal,
+    currentSleep,
+    setCurrentSleep,
   };
 
   // callbacks
@@ -124,7 +133,7 @@ export default function App() {
 }
 
 const styles2 = StyleSheet.create({
-  // ... other styles
+  // rename this
   contentContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -132,7 +141,7 @@ const styles2 = StyleSheet.create({
   },
   roundButtonContainer: {
     justifyContent: "center",
-    alignItems: "center", // This will center the text vertically
+    alignItems: "center",
     margin: 10,
   },
   roundButton: {
@@ -153,24 +162,5 @@ const styles2 = StyleSheet.create({
     alignItems: "center",
     borderRadius: 25,
     backgroundColor: "skyblue",
-  },
-});
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "grey",
-  },
-  contentContainer: {
-    flex: 1,
-    alignItems: "center",
-  },
-  modalView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
   },
 });

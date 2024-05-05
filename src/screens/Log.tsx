@@ -124,16 +124,17 @@ const Log = ({ modalState }) => {
           </View>
         </View>
 
-        <SleepComponent sleep={sleep} />
-        <ActivitySection activities={activities} />
-        <MealsSection meals={meals} />
+        <SleepComponent sleep={sleep} modalState={modalState} />
+        <ActivitySection activities={activities} modalState={modalState} />
+        <MealsSection meals={meals} modalState={modalState} />
       </ScrollView>
       <ReUsableModal modalState={modalState} />
     </>
   );
 };
 
-const SleepComponent = ({ sleep }) => {
+const SleepComponent = ({ sleep, modalState }) => {
+  const { setSleepModalVisible, currentSleep, setCurrentSleep } = modalState;
   if (!sleep) {
     return <StatusComponent text={"Loading..."} title={"Sleep"} />;
   }
@@ -152,46 +153,55 @@ const SleepComponent = ({ sleep }) => {
       <Text style={styles.h2}>Sleep</Text>
 
       {sleep.map((activity: Sleep, index: number) => (
-        <View
-          key={index}
-          style={{
-            ...styles.banner,
-            flex: 1,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
+        <TouchableOpacity
+          onPress={() => {
+            setSleepModalVisible(true);
+            setCurrentSleep(activity);
           }}
         >
           <View
+            key={index}
             style={{
+              ...styles.banner,
+              flex: 1,
               flexDirection: "row",
               alignItems: "center",
-              width: "40%",
+              justifyContent: "space-between",
             }}
           >
-            <SleepIcon />
-            <View style={{ marginLeft: 8 }}>
-              <Text>Total sleep </Text>
-              <Text>{formatDuration(activity.duration)}</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                width: "40%",
+              }}
+            >
+              <SleepIcon />
+              <View style={{ marginLeft: 8 }}>
+                <Text>Total sleep </Text>
+                <Text>{formatDuration(activity.duration)}</Text>
+              </View>
+            </View>
+
+            <View>
+              <Text>Quality </Text>
+              <Text>{parseSleepQuality(activity.quality)}</Text>
+            </View>
+
+            <View>
+              <Text>Bedtime</Text>
+              <Text>{formatTime(activity.time)}</Text>
             </View>
           </View>
-
-          <View>
-            <Text>Quality </Text>
-            <Text>{parseSleepQuality(activity.quality)}</Text>
-          </View>
-
-          <View>
-            <Text>Bedtime</Text>
-            <Text>{formatTime(activity.time)}</Text>
-          </View>
-        </View>
+        </TouchableOpacity>
       ))}
     </View>
   );
 };
 
-export const ActivitySection = ({ activities }) => {
+export const ActivitySection = ({ activities, modalState }) => {
+  const { setActivityModalVisible, setCurrentActivity } = modalState;
+
   if (!activities) {
     return <StatusComponent text={"Loading..."} title={"Activities"} />;
   }
@@ -213,40 +223,115 @@ export const ActivitySection = ({ activities }) => {
           activity: { description: string; time: number; duration: number },
           index: number
         ) => (
-          <View
-            key={index}
-            style={{
-              ...styles.banner,
-              flex: 1,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
+          <TouchableOpacity
+            onPress={() => {
+              setActivityModalVisible(true);
+              setCurrentActivity(activity);
             }}
           >
             <View
+              key={index}
               style={{
+                ...styles.banner,
+                flex: 1,
                 flexDirection: "row",
                 alignItems: "center",
-                width: "40%",
+                justifyContent: "space-between",
               }}
             >
-              <ActivityIcon />
-              <Text numberOfLines={2} style={{ marginLeft: 8 }}>
-                {activity.description}
-              </Text>
-            </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  width: "40%",
+                }}
+              >
+                <ActivityIcon />
+                <Text numberOfLines={2} style={{ marginLeft: 8 }}>
+                  {activity.description}
+                </Text>
+              </View>
 
-            <View>
-              <Text>Duration:</Text>
-              <Text>{Math.floor(activity.duration)} min</Text>
-            </View>
+              <View>
+                <Text>Duration:</Text>
+                <Text>{Math.floor(activity.duration)} min</Text>
+              </View>
 
-            <View>
-              <Text>Time:</Text>
-              <Text>{formatTime(activity.time)}</Text>
+              <View>
+                <Text>Time:</Text>
+                <Text>{formatTime(activity.time)}</Text>
+              </View>
             </View>
-          </View>
+          </TouchableOpacity>
         )
+      )}
+    </View>
+  );
+};
+
+const MealsSection = ({ meals, modalState }) => {
+  const { setAddFoodModalVisible, setCurrentMeal, currentMeal } = modalState;
+
+  useEffect(() => {
+    console.log("currentMeal");
+    console.log(currentMeal);
+  }, [currentMeal]);
+
+  if (!meals) {
+    return <StatusComponent text={"Loading..."} title={"Meals"} />;
+  }
+
+  if (meals.length === 0) {
+    return (
+      <StatusComponent
+        text={"No meals have been logged for today."}
+        title={"Meals"}
+      />
+    );
+  }
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.h2}>Meals</Text>
+      {meals.map(
+        (meal: { description: string; time: number }, index: number) => {
+          return (
+            <TouchableOpacity
+              onPress={() => {
+                setAddFoodModalVisible(true);
+                setCurrentMeal(meal);
+              }}
+            >
+              <View
+                key={index}
+                style={{
+                  ...styles.banner,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    width: "80%",
+                  }}
+                >
+                  <FoodIconBasic />
+                  <View style={{ marginLeft: 8 }}>
+                    <Text numberOfLines={2}>{meal.description}</Text>
+                  </View>
+                </View>
+
+                <View style={{ alignItems: "flex-end" }}>
+                  <Text>Time:</Text>
+                  <Text>{formatTime(meal.time)}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        }
       )}
     </View>
   );
@@ -300,60 +385,6 @@ const LogHeader = ({ date, decrementDate, incrementDate }) => {
           </TouchableOpacity>
         )}
       </View>
-    </View>
-  );
-};
-
-const MealsSection = ({ meals }) => {
-  if (!meals) {
-    return <StatusComponent text={"Loading..."} title={"Meals"} />;
-  }
-
-  if (meals.length === 0) {
-    return (
-      <StatusComponent
-        text={"No meals have been logged for today."}
-        title={"Meals"}
-      />
-    );
-  }
-
-  return (
-    <View style={styles.section}>
-      <Text style={styles.h2}>Meals</Text>
-      {meals.map(
-        (meal: { description: string; time: number }, index: number) => {
-          return (
-            <View
-              key={index}
-              style={{
-                ...styles.banner,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  width: "80%",
-                }}
-              >
-                <FoodIconBasic />
-                <View style={{ marginLeft: 8 }}>
-                  <Text numberOfLines={2}>{meal.description}</Text>
-                </View>
-              </View>
-
-              <View style={{ alignItems: "flex-end" }}>
-                <Text>Time:</Text>
-                <Text>{formatTime(meal.time)}</Text>
-              </View>
-            </View>
-          );
-        }
-      )}
     </View>
   );
 };

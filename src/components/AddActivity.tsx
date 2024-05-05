@@ -18,9 +18,15 @@ import { UserDataContext } from "../contexts/UserDataContext";
 
 type AddActivityProps = {
   setActivityModalVisible: (val: boolean) => void;
+  currentActivity: any; // add a type here
+  setCurrentActivity: (val: any) => void; // add a type here
 };
 
-const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
+const AddActivity = ({
+  setActivityModalVisible,
+  currentActivity,
+  setCurrentActivity,
+}: AddActivityProps) => {
   const [activity, setActivity] = useState("");
   const [timestamp, setTimestamp] = useState(new Date());
   const [duration, setDuration] = useState(0);
@@ -36,24 +42,39 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
   };
 
   const handleSaveAndExit = async () => {
-    const { data, error } = await supabase.from("activities").insert([
-      {
-        time: timestamp,
-        description: activity,
-        duration,
-        uid: userSession.id,
-      },
-    ]);
+    let result;
+    if (currentActivity) {
+      result = await supabase
+        .from("activities")
+        .update({
+          time: timestamp,
+          description: activity,
+          duration,
+        })
+        .match({ id: currentActivity.id });
+    } else {
+      result = await supabase.from("activities").insert([
+        {
+          time: timestamp,
+          description: activity,
+          duration,
+          uid: userSession.id,
+        },
+      ]);
+    }
+
+    const { data, error } = result;
     if (error) {
-      console.log("Error saving meal: ", error);
+      console.log("Error saving activity: ", error);
     } else {
       setActivityModalVisible(false);
+      setCurrentActivity(null);
       refreshActivities(userSession);
     }
   };
 
   const handleSaveAndAddAnother = async () => {
-    const { data, error } = await supabase.from("activities").insert([
+    const { error } = await supabase.from("activities").insert([
       {
         time: timestamp,
         description: activity,
@@ -72,17 +93,31 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
     }
   };
 
+  useEffect(() => {
+    if (currentActivity) {
+      setActivity(currentActivity.description);
+      setDuration(currentActivity.duration);
+      setSliderValue(currentActivity.duration);
+      setTimestamp(new Date(currentActivity.time));
+    }
+  }, [currentActivity]);
+
   const parsedDuration = Math.floor(duration);
 
   return (
     <View style={styles.card}>
       <TouchableOpacity
         style={styles.closeButton}
-        onPress={() => setActivityModalVisible(false)}
+        onPress={() => {
+          setActivityModalVisible(false);
+          setCurrentActivity(null);
+        }}
       >
         <Text style={styles.closeButtonText}>×</Text>
       </TouchableOpacity>
-      <Text style={styles.title}>Enter your activity</Text>
+      <Text style={styles.title}>
+        {currentActivity ? "Edit your activity" : "Enter your activity"}
+      </Text>
       <Text style={styles.label}>Activity</Text>
       <TextInput
         style={{ ...styles.input, height: "30%" }}
@@ -123,13 +158,16 @@ const AddActivity = ({ setActivityModalVisible }: AddActivityProps) => {
         >
           <Text>Save & Exit</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSaveAndAddAnother}
-          disabled={!activity}
-        >
-          <Text>Save & Add Another</Text>
-        </TouchableOpacity>
+        {!currentActivity && (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleSaveAndAddAnother}
+            disabled={!activity}
+          >
+            <Text>Save & Add Another</Text>
+            {/* make sure they have the same formatting */}
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
